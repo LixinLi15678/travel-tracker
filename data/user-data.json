@@ -1,0 +1,14 @@
+{
+    "visitedCountries": [
+      {
+        "country": "China",
+        "countryZH": "中国",
+        "cities": [
+          { "name": "Beijing", "year": 2019 },
+          { "name": "Shanghai", "year": 2020 },
+          { "name": "Guangzhou", "year": 2023 }
+        ]
+      }
+    ]
+  }
+  

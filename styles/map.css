@@ -1,0 +1,96 @@
+/* ========== 地图区与布局 ========== */
+.map-section {
+    margin: 2rem auto;
+    padding: 1rem;
+    max-width: 1200px;
+  }
+  
+  .map-section h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  /* 确保地图容器有高度 */
+  #map {
+    width: 100%;
+    height: 700px;
+    background-color: #ccc;
+    border: 2px solid #333;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  /* ========== 自定义图例示例 ========== */
+  .map-legend {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .map-legend h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .map-legend .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+  
+  .map-legend .legend-color {
+    width: 12px;
+    height: 12px;
+    margin-right: 0.5rem;
+    border-radius: 2px;
+  }
+  
+  /* ========== Leaflet自定义Popup ========== */
+  .leaflet-popup-content-wrapper {
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .leaflet-popup-tip {
+    background: #fff;
+  }
+  .leaflet-popup-content p {
+    margin: 0.5rem 0;
+    line-height: 1.4;
+  }
+  
+  /* ========== 自定义Marker示例(如需的话) ========== */
+  .custom-marker-icon {
+    width: 32px;
+    height: 32px;
+    background: url('../assets/images/custom-marker.png') no-repeat center center;
+    background-size: contain;
+  }
+  
+  /* ========== 调整Leaflet默认控件样式示例 ========== */
+  .leaflet-control {
+    box-shadow: none !important;
+  }
+  
+  .leaflet-bar a {
+    background-color: #fff !important;
+    color: #333 !important;
+    border: none !important;
+    font-size: 1.2rem !important;
+  }
+  
+  .leaflet-bar a:hover {
+    background-color: #f2f2f2 !important;
+  }
+  
+  /* ========== 响应式(移动端) ========== */
+  @media (max-width: 768px) {
+    #map {
+      height: 400px;
+    }
+  }
+  

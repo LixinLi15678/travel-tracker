@@ -1,0 +1,27 @@
+[
+    {
+      "country": "China",
+      "countryZH": "中国",
+      "city": "Beijing",
+      "cityZH": "北京",
+      "latitude": 39.9042,
+      "longitude": 116.4074
+    },
+    {
+      "country": "United States",
+      "countryZH": "美国",
+      "city": "New York",
+      "cityZH": "纽约",
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    },
+    {
+      "country": "Japan",
+      "countryZH": "日本",
+      "city": "Tokyo",
+      "cityZH": "东京",
+      "latitude": 35.6895,
+      "longitude": 139.6917
+    }
+  ]
+  
