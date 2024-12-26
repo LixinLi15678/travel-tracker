@@ -1,5 +1,19 @@
 {
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2"
-  }
+  },
+  "name": "travel-tracker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "description": ""
 }

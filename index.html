@@ -6,21 +6,13 @@
   <title>旅行足迹 - Travel Tracker</title>
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-gZf0DN4io0o0ySiJ0GLnOhqU1q2kT4Mw1ZgMD3Z8bkQ="
-    crossorigin=""
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <!-- 你的主CSS -->
+  <!-- 主CSS -->
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/map.css">
 
-  <!-- favicon 图标 (App 图标) -->
   <link rel="icon" href="assets/images/favicon.png" type="image/png" />
-
-  <!-- 示例：引入一个图标库(可选) -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
@@ -28,12 +20,13 @@
 </head>
 <body>
 
-  <!-- 侧边栏（可选，可通过JS控制显示/隐藏） -->
+  <!-- 侧边栏 -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-close" id="sidebarCloseBtn">
-      <i class="fas fa-times"></i>
+      <i class="fas fa-times"></i> 关闭
     </div>
     <div class="profile-section">
+      <!-- 这两张图如果不存在就会报404，可自行换成别的路径或去掉 -->
       <img src="assets/images/default-avatar.png" alt="User Avatar" class="user-avatar">
       <h3 id="username">未登录</h3>
       <button id="loginOpenBtn">登录 / 注册</button>
@@ -49,10 +42,9 @@
     </div>
   </aside>
 
-  <!-- 页面头部 -->
+  <!-- 顶部 -->
   <header class="app-header">
     <div class="logo">
-      <!-- App Logo 图标 -->
       <img src="assets/images/logo.png" alt="App Logo">
       <h1>旅行足迹</h1>
     </div>
@@ -64,12 +56,18 @@
         <li><a href="#travel-planner-section">旅行计划</a></li>
       </ul>
     </nav>
+
+    <!-- 登录按钮(或已登录状态) -->
+    <div class="auth-button-wrapper">
+      <button id="loginOpenBtnHeader">登录 / 注册</button>
+    </div>
+
     <div class="mobile-menu-icon" id="mobileMenuBtn">
       <i class="fas fa-bars"></i>
     </div>
   </header>
 
-  <!-- 登录 & 注册弹窗模态框 -->
+  <!-- 登录 & 注册弹窗 -->
   <div class="modal" id="authModal">
     <div class="modal-content">
       <span class="close-modal" id="authCloseBtn">&times;</span>
@@ -81,12 +79,8 @@
         <h2>登录</h2>
         <form id="loginForm">
           <div class="form-group">
-            <label for="loginEmail">邮箱：</label>
-            <input type="email" id="loginEmail" name="loginEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="loginPassword">密码：</label>
-            <input type="password" id="loginPassword" name="loginPassword" required>
+            <label for="loginUsername">用户名：</label>
+            <input type="text" id="loginUsername" name="loginUsername" required>
           </div>
           <button type="submit">登录</button>
         </form>
@@ -95,16 +89,8 @@
         <h2>注册</h2>
         <form id="registerForm">
           <div class="form-group">
-            <label for="registerEmail">邮箱：</label>
-            <input type="email" id="registerEmail" name="registerEmail" required>
-          </div>
-          <div class="form-group">
-            <label for="registerNickname">昵称：</label>
-            <input type="text" id="registerNickname" name="registerNickname" required>
-          </div>
-          <div class="form-group">
-            <label for="registerPassword">密码：</label>
-            <input type="password" id="registerPassword" name="registerPassword" required>
+            <label for="registerUsername">用户名：</label>
+            <input type="text" id="registerUsername" name="registerUsername" required>
           </div>
           <button type="submit">注册</button>
         </form>
@@ -112,9 +98,8 @@
     </div>
   </div>
 
-  <!-- 主内容区 -->
   <main>
-    <!-- 英雄横幅/介绍区 -->
+    <!-- 英雄区 -->
     <section class="hero-section" id="hero-section">
       <h2>记录你的全球足迹</h2>
       <p>随时随地查看你去过的国家与城市，规划你的下一次旅行！</p>
@@ -127,74 +112,81 @@
       <div id="map"></div>
     </section>
 
-    <!-- 访问记录区 -->
+    <!-- 访问记录 -->
     <section id="visited-section" class="visited-section">
       <h2>我的旅行记录</h2>
-      <!-- 数量统计 -->
+      <div style="margin-bottom:1rem;">
+        <label for="filterYear">按年份筛选：</label>
+        <input type="number" id="filterYear" placeholder="如：2019">
+        <button id="filterYearBtn">筛选</button>
+        <button id="showAllBtn">显示全部</button>
+      </div>
       <p id="visitedStats"></p>
-      <ul id="visitedList">
-        <!-- 通过JS动态生成已访问的国家/城市列表 -->
-      </ul>
+      <ul id="visitedList"></ul>
     </section>
 
-    <!-- 旅行计划区 -->
-    <section id="travel-planner-section" class="travel-planner-section">
-      <h2>我的旅行计划</h2>
-      <form id="travelPlanForm">
-        <div class="form-group">
-          <label for="plannedCountry">国家：</label>
-          <input
-            type="text"
-            id="plannedCountry"
-            name="plannedCountry"
-            placeholder="如：中国 / 美国"
-            required
-          >
-        </div>
-        <div class="form-group">
-          <label for="plannedCity">城市：</label>
+    <!-- 旅行计划 -->
+  <section id="travel-planner-section" class="travel-planner-section">
+    <h2>我的旅行计划</h2>
+    <form id="travelPlanForm">
+      <div class="form-group">
+        <label for="plannedCountry">国家：</label>
+        <input
+          type="text"
+          id="plannedCountry"
+          name="plannedCountry"
+          placeholder="如：中国 / 美国"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label for="plannedCity">城市：</label>
+        <div class="autocomplete-wrapper">
           <input
             type="text"
             id="plannedCity"
             name="plannedCity"
             placeholder="如：北京 / 纽约"
+            autocomplete="off"
             required
           >
+          <ul id="citySearchList" class="search-list"></ul>
         </div>
-        <div class="form-group">
-          <label for="plannedYear">年份：</label>
-          <input
-            type="number"
-            id="plannedYear"
-            name="plannedYear"
-            placeholder="如：2024"
-            required
-          >
-        </div>
-        <button type="submit">添加到我的旅行计划</button>
-      </form>
-      <ul id="travelPlanList"></ul>
-    </section>
+        <input type="hidden" id="plannedLat">
+        <input type="hidden" id="plannedLng">
+      </div>
+      <div class="form-group">
+        <label for="plannedYear">年份：</label>
+        <input
+          type="number"
+          id="plannedYear"
+          name="plannedYear"
+          placeholder="如：2024"
+          step="1"
+          min="1900"
+          max="2100"
+          required
+        >
+      </div>
+      <button type="submit">添加到我的旅行计划</button>
+    </form>
+    <ul id="travelPlanList"></ul>
+  </section>
+
   </main>
 
-  <!-- 页脚 -->
   <footer class="app-footer">
     <p>© 2024 旅行足迹 Travel Tracker. All Rights Reserved.</p>
   </footer>
 
   <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-vGZpIoQIyEZ4OJnB0PTiKZkz6GSy6CpclQ0AlN5eAHE="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- 主功能脚本 -->
-  <script src="scripts/main.js"></script>
-  <!-- 地图交互脚本 -->
-  <script src="scripts/map.js"></script>
-  <!-- 数据处理脚本 -->
+  <!-- 你的脚本 -->
+  <script src="scripts/geo.js"></script>
   <script src="scripts/data.js"></script>
+  <script src="scripts/main.js"></script>
+  <script src="scripts/map.js"></script>
 
 </body>
 </html>

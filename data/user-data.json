@@ -1,14 +1,19 @@
 {
-    "visitedCountries": [
-      {
-        "country": "China",
-        "countryZH": "中国",
-        "cities": [
-          { "name": "Beijing", "year": 2019 },
-          { "name": "Shanghai", "year": 2020 },
-          { "name": "Guangzhou", "year": 2023 }
-        ]
-      }
-    ]
+  "users": {
+    "Teresa": {
+      "visitedCountries": [],
+      "travelPlans": [
+        {
+          "country": "中国",
+          "city": "北京",
+          "year": "2024"
+        },
+        {
+          "country": "China",
+          "city": "Beijing",
+          "year": "2023"
+        }
+      ]
+    }
   }
-  
+}
