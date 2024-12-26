@@ -1,6 +1,5 @@
 /**
  * main.js
- * 新增功能：点击 “绘制连线” 按钮，根据当前筛选的已访问记录获取坐标，
  * 并调用 map.js 的 drawVisitedLine(coordsArray, color) 画出折线。
  */
 
@@ -108,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.getElementById('startTrackingBtn');
   if (startBtn) {
     startBtn.addEventListener('click', () => {
-      alert("开始记录你的旅行足迹吧！");
+      alert("开始记录吧！凝凝专属！");
       document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
     });
   }
@@ -272,12 +271,21 @@ async function renderVisitedList(filterYear = 0) {
 /* ========== 新功能：绘制连线按钮点击 ========== */
 async function drawVisitedLineHandler() {
   try {
+    // 1) 获取颜色
     const colorPicker = document.getElementById('lineColor');
     let lineColor = '#ff0000';
     if (colorPicker) {
       lineColor = colorPicker.value;
     }
 
+    // 2) 获取线宽
+    const weightInput = document.getElementById('lineWeight');
+    let lineWeight = 3;
+    if (weightInput) {
+      lineWeight = parseInt(weightInput.value, 10) || 3;
+    }
+
+    // 3) 读取已访问记录(跟之前逻辑一样)
     const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
     const savedUser = loadDataFromLocal('loggedInUser');
     if (!savedUser || !savedUser.username) {
@@ -285,7 +293,6 @@ async function drawVisitedLineHandler() {
       return;
     }
 
-    // 拉取 user-data
     const res = await fetch('/api/user-data');
     const data = await res.json();
     if (!data.users[savedUser.username]) {
@@ -314,11 +321,10 @@ async function drawVisitedLineHandler() {
       return;
     }
 
-    // 拉取 locations.json
+    // 查 locations.json
     const locRes = await fetch('/api/locations');
     const locData = await locRes.json();
 
-    // 匹配坐标
     let coordsArray = [];
     visitedCities.forEach(vc => {
       let match = locData.find(ld =>
@@ -335,8 +341,9 @@ async function drawVisitedLineHandler() {
       return;
     }
 
-    // 画线
-    drawVisitedLine(coordsArray, lineColor);
+    // 4) 调用 drawVisitedLine 时，带上 lineWeight
+    drawVisitedLine(coordsArray, lineColor, true, lineWeight);
+
   } catch (err) {
     console.error("drawVisitedLineHandler出错:", err);
   }

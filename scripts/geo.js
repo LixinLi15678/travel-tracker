@@ -1,6 +1,6 @@
 /**
  * geo.js
- * 使用 Nominatim API + 自定义下拉搜索菜单
+ * 使用 Nominatim API + 自定义下拉搜索菜单 + 防抖 & 缓存
  */
 document.addEventListener('DOMContentLoaded', () => {
     const cityInput = document.getElementById('plannedCity');
@@ -11,39 +11,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!cityInput || !cityList || !latInput || !lngInput) return;
   
     let lastSearchTerm = '';
-    let currentResults = []; // 存储本次搜索得到的结果数组
+    let currentResults = [];
+    let searchTimer = null;         // 用来做防抖
+    let cache = {};                // 简易缓存：{ query -> data }
   
-    // 监听输入事件
-    cityInput.addEventListener('input', async () => {
+    cityInput.addEventListener('input', () => {
       const query = cityInput.value.trim();
-      // 若与上次搜索相同或为空，则不请求
+      // 若空直接清空列表
       if (!query) {
         cityList.innerHTML = '';
         cityList.style.display = 'none';
         return;
       }
+      // 若和上次相同也不重复请求
       if (query === lastSearchTerm) {
-        // 如果两次输入相同就不重复请求
         return;
       }
       lastSearchTerm = query;
   
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-  
-        currentResults = data; // 存下来
-        // 更新下拉列表
-        renderSearchList(data, query);
-      } catch (err) {
-        console.error("城市搜索失败：", err);
-        cityList.innerHTML = '';
-        cityList.style.display = 'none';
+      // 防抖：先清除上一次的计时器
+      if (searchTimer) {
+        clearTimeout(searchTimer);
       }
+      // 等待 300ms 后再请求
+      searchTimer = setTimeout(() => {
+        doSearch(query);
+      }, 300);
     });
   
-    // 点击外面时隐藏
+    // 点击页面空白区隐藏下拉
     document.addEventListener('click', (e) => {
       if (!cityList.contains(e.target) && e.target !== cityInput) {
         cityList.innerHTML = '';
@@ -51,23 +47,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   
-    // 渲染下拉列表
-    function renderSearchList(data, keyword) {
+    async function doSearch(query) {
+      // 1) 若缓存里有，就直接渲染
+      if (cache[query]) {
+        currentResults = cache[query];
+        renderSearchList(currentResults);
+        return;
+      }
+      // 2) 否则发请求
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        currentResults = data;
+        // 存入缓存
+        cache[query] = data;
+        // 渲染
+        renderSearchList(data);
+      } catch (err) {
+        console.error("城市搜索失败：", err);
+        cityList.innerHTML = '';
+        cityList.style.display = 'none';
+      }
+    }
+  
+    function renderSearchList(data) {
       if (!data || data.length === 0) {
         cityList.innerHTML = '';
         cityList.style.display = 'none';
         return;
       }
       cityList.innerHTML = data.map((item, idx) => {
-        // item.display_name
-        // lat => item.lat
-        // lon => item.lon
         return `<li data-idx="${idx}">${item.display_name}</li>`;
       }).join('');
   
       cityList.style.display = 'block';
   
-      // 每个 li 可点击
       const liEls = cityList.querySelectorAll('li');
       liEls.forEach(li => {
         li.addEventListener('click', () => {

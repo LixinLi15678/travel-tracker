@@ -25,5 +25,14 @@
     "latitude": 34.0536909,
     "longitude": -118.242766,
     "type": "visited"
+  },
+  {
+    "country": "中国",
+    "countryZH": "中国",
+    "city": "新疆维吾尔自治区, 中国",
+    "cityZH": "新疆维吾尔自治区, 中国",
+    "latitude": 42.4804953,
+    "longitude": 85.4633464,
+    "type": "visited"
   }
 ]

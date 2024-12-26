@@ -43,7 +43,7 @@
   .legend-item {
     display: flex;       /* 让图标与文字同一行 */
     align-items: center; /* 垂直居中 */
-    margin-bottom: 0.5rem; 
+    margin-bottom: 0.5rem;
   }
   
   .legend-icon {

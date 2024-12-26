@@ -33,12 +33,12 @@ function loadLocationsAndMark() {
         if (loc.type === 'visited') {
           markerIcon = L.icon({
             iconUrl: 'assets/markers/marker-visited.png',
-            iconSize: [30, 40]
+            iconSize: [16, 25]
           });
         } else {
           markerIcon = L.icon({
             iconUrl: 'assets/markers/marker-plan.png',
-            iconSize: [30, 40]
+            iconSize: [16, 25]
           });
         }
 
@@ -65,7 +65,6 @@ function addMapLegend() {
       <h3 class="legend-title">地图图例</h3>
 
       <div class="legend-item">
-        <!-- 让图片更小一些，比如宽30，高自动计算，也可直接宽高都定死 -->
         <img src="assets/markers/marker-visited.png" alt="已访问" class="legend-icon">
         <span>已访问</span>
       </div>
@@ -96,15 +95,19 @@ window.centerMap = centerMap;
 window.drawnPolylines = [];
 
 /**
- * 绘制访问线路，自动适应地图到折线范围
+ * 绘制访问线路
+ * coordsArray: [{lat, lng}, {lat, lng}...]
+ * color: 颜色 (默认 #ff0000)
+ * autoFit: 是否自动地图 fitBounds
+ * weight: 线宽 (默认 3)
  */
-function drawVisitedLine(coordsArray, color = '#ff0000', autoFit = true) {
+function drawVisitedLine(coordsArray, color = '#ff0000', autoFit = true, weight = 3) {
   if (!map || !coordsArray || coordsArray.length < 2) return;
 
   const latlngs = coordsArray.map(c => [c.lat, c.lng]);
   const polyline = L.polyline(latlngs, {
     color: color,
-    weight: 3,
+    weight: weight,
     opacity: 0.8
   }).addTo(map);
 
@@ -116,6 +119,7 @@ function drawVisitedLine(coordsArray, color = '#ff0000', autoFit = true) {
     map.fitBounds(polyline.getBounds());
   }
 }
+
 
 window.drawVisitedLine = drawVisitedLine;
 
