@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // countryObj.name.common 是常用国名
           if (countryObj && countryObj.name && countryObj.name.common) {
             const option = document.createElement('option');
-            option.value = countryObj.name.common; 
+            option.value = countryObj.name.common;
             datalistEl.appendChild(option);
           }
         });

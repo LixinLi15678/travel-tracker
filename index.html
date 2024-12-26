@@ -26,8 +26,6 @@
       <i class="fas fa-times"></i> 关闭
     </div>
     <div class="profile-section">
-      <!-- 这两张图如果不存在就会报404，可自行换成别的路径或去掉 -->
-      <img src="assets/images/default-avatar.png" alt="User Avatar" class="user-avatar">
       <h3 id="username">未登录</h3>
       <button id="loginOpenBtn">登录 / 注册</button>
     </div>
@@ -126,53 +124,60 @@
     </section>
 
     <!-- 旅行计划 -->
-  <section id="travel-planner-section" class="travel-planner-section">
-    <h2>我的旅行计划</h2>
-    <form id="travelPlanForm">
-      <div class="form-group">
-        <label for="plannedCountry">国家：</label>
-        <input
-          type="text"
-          id="plannedCountry"
-          name="plannedCountry"
-          placeholder="如：中国 / 美国"
-          required
-        >
-      </div>
-      <div class="form-group">
-        <label for="plannedCity">城市：</label>
-        <div class="autocomplete-wrapper">
+    <section id="travel-planner-section" class="travel-planner-section">
+      <h2>我的旅行计划</h2>
+      <form id="travelPlanForm">
+
+        <!-- 国家：增加 list="countryList" + <datalist> -->
+        <div class="form-group">
+          <label for="plannedCountry">国家：</label>
           <input
             type="text"
-            id="plannedCity"
-            name="plannedCity"
-            placeholder="如：北京 / 纽约"
-            autocomplete="off"
+            id="plannedCountry"
+            name="plannedCountry"
+            list="countryList"   <!-- 关键: 让输入框和 datalist 关联 -->
+            placeholder="如：中国 / 美国"
             required
           >
-          <ul id="citySearchList" class="search-list"></ul>
+          <!-- 这里放一个空的 datalist，用 countries.js 来填充 -->
+          <datalist id="countryList"></datalist>
         </div>
-        <input type="hidden" id="plannedLat">
-        <input type="hidden" id="plannedLng">
-      </div>
-      <div class="form-group">
-        <label for="plannedYear">年份：</label>
-        <input
-          type="number"
-          id="plannedYear"
-          name="plannedYear"
-          placeholder="如：2024"
-          step="1"
-          min="1900"
-          max="2100"
-          required
-        >
-      </div>
-      <button type="submit">添加到我的旅行计划</button>
-    </form>
-    <ul id="travelPlanList"></ul>
-  </section>
 
+        <!-- 城市：自定义下拉搜索 -->
+        <div class="form-group">
+          <label for="plannedCity">城市：</label>
+          <div class="autocomplete-wrapper">
+            <input
+              type="text"
+              id="plannedCity"
+              name="plannedCity"
+              placeholder="如：北京 / 纽约"
+              autocomplete="off"
+              required
+            >
+            <ul id="citySearchList" class="search-list"></ul>
+          </div>
+          <input type="hidden" id="plannedLat">
+          <input type="hidden" id="plannedLng">
+        </div>
+
+        <div class="form-group">
+          <label for="plannedYear">年份：</label>
+          <input
+            type="number"
+            id="plannedYear"
+            name="plannedYear"
+            placeholder="如：2024"
+            step="1"
+            min="1900"
+            max="2100"
+            required
+          >
+        </div>
+        <button type="submit">添加到我的旅行计划</button>
+      </form>
+      <ul id="travelPlanList"></ul>
+    </section>
   </main>
 
   <footer class="app-footer">
@@ -184,6 +189,7 @@
 
   <!-- 你的脚本 -->
   <script src="scripts/geo.js"></script>
+  <script src="scripts/countries.js"></script> <!-- 在这里保证 countries.js 也被加载 -->
   <script src="scripts/data.js"></script>
   <script src="scripts/main.js"></script>
   <script src="scripts/map.js"></script>

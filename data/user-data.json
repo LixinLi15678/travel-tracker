@@ -1,17 +1,24 @@
 {
   "users": {
     "Teresa": {
-      "visitedCountries": [],
+      "visitedCountries": [
+        {
+          "country": "美国",
+          "countryZH": "美国",
+          "year": 2024,
+          "cities": [
+            {
+              "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
+              "cityZH": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國"
+            }
+          ]
+        }
+      ],
       "travelPlans": [
         {
-          "country": "中国",
-          "city": "北京",
+          "country": "美国",
+          "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
           "year": "2024"
-        },
-        {
-          "country": "China",
-          "city": "Beijing",
-          "year": "2023"
         }
       ]
     }
