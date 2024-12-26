@@ -298,6 +298,32 @@
     margin-left: 2rem;
     padding-left: 1rem;
   }
+  /* 和你之前的 .modal, .modal-content 一致就行 */
+  #visitListModal {
+    display: none; 
+    position: fixed;
+    z-index: 2000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  #visitListModal .modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    border-radius: 6px;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+  }
+  #visitListCloseBtn {
+    position: absolute;
+    right: 1rem; top: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
   
   /* ========== 旅行计划区 (Planner Section) ========== */
   .travel-planner-section {

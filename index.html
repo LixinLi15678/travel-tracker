@@ -118,10 +118,32 @@
         <input type="number" id="filterYear" placeholder="如：2019">
         <button id="filterYearBtn">筛选</button>
         <button id="showAllBtn">显示全部</button>
+    
+        <button id="viewVisitListBtn">查看访问列表</button>
       </div>
       <p id="visitedStats"></p>
       <ul id="visitedList"></ul>
     </section>
+    
+    <div class="modal" id="visitListModal">
+      <div class="modal-content">
+        <span class="close-modal" id="visitListCloseBtn">&times;</span>
+        <h2>访问列表</h2>
+    
+        <!-- 排序下拉，可选“访问顺序”“国家”“城市” -->
+        <div style="margin-bottom:1rem;">
+          <label for="visitSortSelect">排序方式：</label>
+          <select id="visitSortSelect">
+            <option value="time">按访问顺序</option>
+            <option value="country">按国家名</option>
+            <option value="city">按城市名</option>
+          </select>
+        </div>
+    
+        <!-- 在这里渲染详细的访问数据 -->
+        <div id="visitListDetail"></div>
+      </div>
+    </div>    
 
     <!-- 旅行计划 -->
     <section id="travel-planner-section" class="travel-planner-section">

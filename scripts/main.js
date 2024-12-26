@@ -1,7 +1,12 @@
+/**
+ * main.js
+ * 整合：登录/注册、访问记录、旅行计划、删除 & 标记已访问、查看访问列表、拖拽排序
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("旅行足迹 WebApp 已加载");
 
-  // 侧边栏
+  // ========== 侧边栏 ==========
   const sidebar = document.getElementById('sidebar');
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
@@ -26,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 登录弹窗
+  // ========== 登录/注册弹窗 ==========
   const authModal = document.getElementById('authModal');
   const loginOpenBtn = document.getElementById('loginOpenBtn');
   const authCloseBtn = document.getElementById('authCloseBtn');
@@ -47,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Tab切换
+  // ========== Tab 切换(登录/注册) ==========
   const tablinks = document.querySelectorAll('.tablink');
   const tabContents = document.querySelectorAll('.tab-content');
   tablinks.forEach(tab => {
@@ -64,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 登录/注册事件
+  // ========== 登录/注册表单 ==========
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   if (loginForm) {
@@ -90,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 登录状态
+  // ========== 登录状态回显 ==========
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
     updateUserInfo({ nickname: savedUser.username });
@@ -98,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUserInfo(null);
   }
 
-  // “开始记录”
+  // ========== “开始记录”按钮 ==========
   const startBtn = document.getElementById('startTrackingBtn');
   if (startBtn) {
     startBtn.addEventListener('click', () => {
@@ -107,10 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 渲染已访问
+  // ========== 已访问：渲染 & 筛选 ==========
   renderVisitedList();
 
-  // 年份筛选
   const filterYearInput = document.getElementById('filterYear');
   const filterYearBtn = document.getElementById('filterYearBtn');
   const showAllBtn = document.getElementById('showAllBtn');
@@ -127,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 旅行计划
+  // ========== 旅行计划：添加 & 渲染 ==========
   const travelPlanForm = document.getElementById('travelPlanForm');
   if (travelPlanForm) {
     travelPlanForm.addEventListener('submit', async (e) => {
@@ -144,12 +148,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // 1) 本地存
       addTravelPlanLocal(plannedCountry, plannedCity, plannedYear, lat, lng);
 
-      // 2) 后端 user-data.json => travelPlans
+      // 2) 写到后端 user-data.json => travelPlans
       await addPlanToUserData(plannedCountry, plannedCity, plannedYear);
 
-      // 3) 后端 locations.json => type='plan'
+      // 3) 写到 locations.json => type='plan' 并刷新地图 & 居中
       if (lat && lng) {
-        await addLocationToServer(plannedCountry, plannedCity, lat, lng, "plan");
+        await addLocationToServer(plannedCountry, plannedCity, lat, lng, 'plan');
       } else {
         console.warn("未选择城市下拉结果，无法标注地图");
       }
@@ -158,19 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('plannedLat').value = '';
       document.getElementById('plannedLng').value = '';
 
+      // 重新渲染列表
       renderTravelPlanList();
     });
   }
   renderTravelPlanList();
 });
 
-/* ========== 登录按钮点击：已登录 => 登出; 未登录 => 打开弹窗 ========== */
+/* ========== 登录按钮点击：已登录 => 登出; 未登录 => 弹窗 ========== */
 function handleAuthButtonClick() {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
+    // 已登录 => 登出
     localStorage.removeItem('loggedInUser');
     updateUserInfo(null);
   } else {
+    // 未登录 => 打开登录弹窗
     openAuthModal();
   }
 }
@@ -183,7 +190,7 @@ function closeAuthModal() {
   if (authModal) authModal.style.display = 'none';
 }
 
-/* ========== 更新登录状态 ========== */
+/* ========== 更新登录状态 UI ========== */
 function updateUserInfo(userObj) {
   const usernameEl = document.getElementById('username');
   const loginBtnHeader = document.getElementById('loginOpenBtnHeader');
@@ -200,7 +207,7 @@ function updateUserInfo(userObj) {
   }
 }
 
-/* ========== 渲染“已访问” ========== */
+/* ========== 已访问：渲染 & 筛选 ========== */
 async function renderVisitedList(filterYear = 0) {
   try {
     const res = await fetch('/api/user-data');
@@ -214,6 +221,7 @@ async function renderVisitedList(filterYear = 0) {
 
     visitedListEl.innerHTML = '';
 
+    // 未登录或无数据
     if (!username || !data.users[username]) {
       visitedStatsEl.textContent = "暂无记录";
       return;
@@ -225,7 +233,7 @@ async function renderVisitedList(filterYear = 0) {
       countries = countries.filter(item => item.year === filterYear);
     }
     if (countries.length === 0) {
-      visitedStatsEl.textContent = filterYear !== 0
+      visitedStatsEl.textContent = (filterYear !== 0)
         ? `没有 ${filterYear} 年的访问记录`
         : "暂无记录";
       return;
@@ -236,6 +244,7 @@ async function renderVisitedList(filterYear = 0) {
     countries.forEach(c => totalCities += c.cities.length);
     visitedStatsEl.textContent = `已访问 ${totalCountries} 个国家，共 ${totalCities} 个城市。`;
 
+    // 展示
     countries.forEach(item => {
       const li = document.createElement('li');
       li.textContent = `${item.year} 年 - ${item.countryZH}（${item.country}） - ${item.cities.length} 个城市`;
@@ -246,7 +255,7 @@ async function renderVisitedList(filterYear = 0) {
   }
 }
 
-/* ========== 本地存旅行计划(带lat,lng) ========== */
+/* ========== 本地存旅行计划(带 lat,lng) ========== */
 function addTravelPlanLocal(country, city, year, lat, lng) {
   let planList = loadDataFromLocal('travelPlanList') || [];
   planList.push({ country, city, year, lat, lng });
@@ -256,7 +265,7 @@ function addTravelPlanLocal(country, city, year, lat, lng) {
 /* ========== 写 user-data.json => travelPlans ========== */
 async function addPlanToUserData(country, city, year) {
   const savedUser = loadDataFromLocal('loggedInUser');
-  if (!savedUser?.username) return;
+  if (!savedUser?.username) return; // 未登录直接跳过
   try {
     const res = await fetch('/api/user-data');
     const data = await res.json();
@@ -282,7 +291,7 @@ async function addPlanToUserData(country, city, year) {
   }
 }
 
-/* ========== 写 locations.json => type='plan' or 'visited' ========== */
+/* ========== 写 locations.json => type='plan' or 'visited' + 刷新地图 + 居中 ========== */
 async function addLocationToServer(country, city, lat, lng, type) {
   try {
     const newLoc = {
@@ -304,8 +313,7 @@ async function addLocationToServer(country, city, lat, lng, type) {
 
     // 刷新地图 Marker
     loadLocationsAndMark();
-
-    // ★★ 这里加上自动聚焦
+    // 聚焦(若 map.js 提供了 centerMap)
     centerMap(lat, lng, 8);
 
   } catch (err) {
@@ -313,7 +321,90 @@ async function addLocationToServer(country, city, lat, lng, type) {
   }
 }
 
-/* ========== 渲染本地旅行计划列表 + 标记已访问 ========== */
+/* ========== 删除地点: /api/locations/remove ========== */
+async function removeLocationFromServer(lat, lng) {
+  try {
+    const body = { latitude: parseFloat(lat), longitude: parseFloat(lng) };
+    const res = await fetch('/api/locations/remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    console.log(`已删除地图标记 lat=${lat}, lng=${lng}`);
+  } catch (err) {
+    console.error("removeLocationFromServer 出错:", err);
+  }
+}
+
+/* ========== 标记已访问: 写 user-data.json => visitedCountries ========== */
+async function markPlanAsVisited(country, city, year) {
+  const savedUser = loadDataFromLocal('loggedInUser');
+  if (!savedUser?.username) {
+    console.warn("未登录，不能标记已访问");
+    return;
+  }
+  try {
+    const res = await fetch('/api/user-data');
+    const data = await res.json();
+    if (!data.users[savedUser.username]) {
+      data.users[savedUser.username] = {
+        visitedCountries: [],
+        travelPlans: []
+      };
+    }
+    let userObj = data.users[savedUser.username];
+    if (!Array.isArray(userObj.visitedCountries)) {
+      userObj.visitedCountries = [];
+    }
+
+    // 如果已有相同 (country + year)，往 cities[] 追加即可
+    let existing = userObj.visitedCountries.find(v =>
+      v.country === country && v.year === parseInt(year, 10)
+    );
+    if (existing) {
+      existing.cities.push({ city, cityZH: city });
+    } else {
+      // 新建
+      userObj.visitedCountries.push({
+        country: country,
+        countryZH: country,
+        year: parseInt(year, 10),
+        cities: [{ city, cityZH: city }]
+      });
+    }
+
+    await fetch('/api/user-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    console.log(`已将 [${country}, ${city}, ${year}] 标记为已访问`);
+  } catch (err) {
+    console.error("markPlanAsVisited 出错:", err);
+  }
+}
+
+/* ========== 更新地点类型 => /api/locations PATCH ========== */
+async function updateLocationTypeOnServer(lat, lng, newType) {
+  try {
+    const body = {
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
+      newType: newType
+    };
+    const res = await fetch('/api/locations', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    console.log(`updateLocationTypeOnServer => 已更新 type=${newType}`);
+  } catch (err) {
+    console.error("updateLocationTypeOnServer 出错:", err);
+  }
+}
+
+/* ========== 渲染本地旅行计划列表 ========== */
 function renderTravelPlanList() {
   const planList = loadDataFromLocal('travelPlanList') || [];
   const travelPlanListEl = document.getElementById('travelPlanList');
@@ -330,14 +421,13 @@ function renderTravelPlanList() {
     removeBtn.textContent = '删除';
     removeBtn.style.marginLeft = '1rem';
     removeBtn.addEventListener('click', async () => {
-      // 如果地图上已经有 plan 标记 => remove
+      // 如果地图上有 plan 标记 => remove
       if (item.lat && item.lng) {
         await removeLocationFromServer(item.lat, item.lng);
       }
-      // 从本地移除
+      // 本地数组里删
       planList.splice(index, 1);
       saveDataToLocal('travelPlanList', planList);
-      // 重新渲染
       renderTravelPlanList();
       // 刷新地图
       loadLocationsAndMark();
@@ -348,15 +438,15 @@ function renderTravelPlanList() {
     visitedBtn.textContent = '标记已访问';
     visitedBtn.style.marginLeft = '1rem';
     visitedBtn.addEventListener('click', async () => {
-      // 先后端 user-data.json => visitedCountries
+      // 写 user-data.json => visitedCountries
       await markPlanAsVisited(item.country, item.city, item.year);
 
-      // 再改 locations.json => set type='visited'
+      // 改地点 type => visited
       if (item.lat && item.lng) {
         await updateLocationTypeOnServer(item.lat, item.lng, 'visited');
       }
 
-      // 从本地 planList 中删掉
+      // 本地删
       planList.splice(index, 1);
       saveDataToLocal('travelPlanList', planList);
 
@@ -365,98 +455,207 @@ function renderTravelPlanList() {
       loadLocationsAndMark();
     });
 
-    // ★ 关键：把按钮加到 li，上面两段监听逻辑只在点击时才触发
     li.appendChild(removeBtn);
     li.appendChild(visitedBtn);
-
-    // ★ 最后再把 li 添加到 travelPlanListEl
     travelPlanListEl.appendChild(li);
   });
-  
-  // 以下是你定义的辅助函数
-  async function removeLocationFromServer(lat, lng) {
-    try {
-      const body = { latitude: parseFloat(lat), longitude: parseFloat(lng) };
-      await fetch('/api/locations/remove', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      console.log(`已删除地图标记 lat=${lat}, lng=${lng}`);
-    } catch (err) {
-      console.error("removeLocationFromServer 出错:", err);
-    }
+
+  // ========== “查看访问列表”按钮 & 弹窗部分 (如果需要拖拽排序) ==========
+  const viewVisitListBtn = document.getElementById('viewVisitListBtn');
+  const visitListModal = document.getElementById('visitListModal');
+  const visitListCloseBtn = document.getElementById('visitListCloseBtn');
+  const visitSortSelect = document.getElementById('visitSortSelect');
+  const visitListDetail = document.getElementById('visitListDetail');
+
+  if (viewVisitListBtn && visitListModal) {
+    viewVisitListBtn.addEventListener('click', () => {
+      visitListModal.style.display = 'block';
+      showVisitListModal();
+    });
   }
 
-  async function updateLocationTypeOnServer(lat, lng, newType) {
-    try {
-      const body = {
-        latitude: parseFloat(lat),
-        longitude: parseFloat(lng),
-        newType
-      };
-      const res = await fetch('/api/locations', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      await res.json();
-      console.log(`updateLocationTypeOnServer => 已更新 type=${newType}`);
-  
-      // 刷新地图
-      loadLocationsAndMark();
-  
-      // 再居中
-      centerMap(lat, lng, 8);
-  
-    } catch (err) {
-      console.error("updateLocationTypeOnServer 出错:", err);
-    }
+  if (visitListCloseBtn) {
+    visitListCloseBtn.addEventListener('click', () => {
+      visitListModal.style.display = 'none';
+    });
   }
-  
-
-  async function markPlanAsVisited(country, city, year) {
-    const savedUser = loadDataFromLocal('loggedInUser');
-    if (!savedUser || !savedUser.username) {
-      console.warn("未登录，不能标记已访问");
-      return;
+  window.addEventListener('click', (event) => {
+    if (event.target === visitListModal) {
+      visitListModal.style.display = 'none';
     }
+  });
+  if (visitSortSelect) {
+    visitSortSelect.addEventListener('change', () => {
+      showVisitListModal();
+    });
+  }
+
+  // 这个函数用来渲染模态框里访问记录 + 拖拽排序
+  async function showVisitListModal() {
     try {
+      const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
+      const sortMode = visitSortSelect?.value || 'time';
+
       const res = await fetch('/api/user-data');
       const data = await res.json();
-      if (!data.users[savedUser.username]) {
-        data.users[savedUser.username] = {
-          visitedCountries: [],
-          travelPlans: []
-        };
-      }
-      let userObj = data.users[savedUser.username];
-      if (!Array.isArray(userObj.visitedCountries)) {
-        userObj.visitedCountries = [];
+
+      const savedUser = loadDataFromLocal('loggedInUser');
+      let username = savedUser?.username;
+      if (!username || !data.users[username]) {
+        visitListDetail.innerHTML = `<p>暂无记录</p>`;
+        return;
       }
 
-      let existing = userObj.visitedCountries.find(v =>
-        v.country === country && v.year === parseInt(year, 10)
+      let visited = data.users[username].visitedCountries || [];
+      if (filterYear !== 0) {
+        visited = visited.filter(v => v.year === filterYear);
+      }
+      if (visited.length === 0) {
+        visitListDetail.innerHTML = `<p>暂无记录</p>`;
+        return;
+      }
+
+      // 扁平化
+      let detailList = [];
+      visited.forEach(v => {
+        v.cities.forEach(c => {
+          detailList.push({
+            year: v.year,
+            country: v.country,
+            countryZH: v.countryZH,
+            city: c.city,
+            cityZH: c.cityZH
+          });
+        });
+      });
+
+      // 简单排序
+      if (sortMode === 'country') {
+        detailList.sort((a, b) => a.country.localeCompare(b.country));
+      } else if (sortMode === 'city') {
+        detailList.sort((a, b) => a.city.localeCompare(b.city));
+      }
+      // 'time' => 不动
+
+      // 生成HTML + draggable
+      let listHTML = `<ul id="visitDraggableList">`;
+      detailList.forEach((item, idx) => {
+        listHTML += `
+          <li draggable="true" data-index="${idx}">
+            ${item.year} - ${item.countryZH}（${item.country}） - ${item.cityZH}（${item.city}）
+          </li>`;
+      });
+      listHTML += `</ul>`;
+      listHTML += `<button id="saveVisitOrderBtn">保存顺序</button>`;
+      visitListDetail.innerHTML = listHTML;
+
+      initDragAndDrop(detailList);
+    } catch (err) {
+      console.error("showVisitListModal 出错:", err);
+      visitListDetail.innerHTML = `<p>加载失败</p>`;
+    }
+  }
+
+  // 拖拽排序逻辑(若不需要可删除)
+  function initDragAndDrop(detailList) {
+    const listEl = document.getElementById('visitDraggableList');
+    if (!listEl) return;
+
+    let dragSrcIndex = -1;
+
+    listEl.addEventListener('dragstart', (e) => {
+      if (e.target && e.target.matches('li[draggable="true"]')) {
+        dragSrcIndex = parseInt(e.target.getAttribute('data-index'), 10);
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    listEl.addEventListener('dragover', (e) => {
+      if (e.target && e.target.matches('li[draggable="true"]')) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+    });
+
+    listEl.addEventListener('drop', (e) => {
+      if (e.target && e.target.matches('li[draggable="true"]')) {
+        e.preventDefault();
+        let dragTargetIndex = parseInt(e.target.getAttribute('data-index'), 10);
+        if (dragSrcIndex === dragTargetIndex) return;
+
+        moveItemInArray(detailList, dragSrcIndex, dragTargetIndex);
+        reRenderDragList(detailList);
+      }
+    });
+
+    const saveBtn = document.getElementById('saveVisitOrderBtn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        await saveNewVisitOrder(detailList);
+        alert("已保存新的访问顺序");
+      });
+    }
+  }
+
+  function moveItemInArray(arr, fromIndex, toIndex) {
+    if (fromIndex < 0 || fromIndex >= arr.length) return;
+    if (toIndex < 0 || toIndex >= arr.length) return;
+    const item = arr.splice(fromIndex, 1)[0];
+    arr.splice(toIndex, 0, item);
+  }
+
+  function reRenderDragList(detailList) {
+    const listEl = document.getElementById('visitDraggableList');
+    if (!listEl) return;
+    let newHTML = '';
+    detailList.forEach((item, idx) => {
+      newHTML += `
+        <li draggable="true" data-index="${idx}">
+          ${item.year} - ${item.countryZH}（${item.country}） - ${item.cityZH}（${item.city}）
+        </li>`;
+    });
+    listEl.innerHTML = newHTML;
+  }
+
+  async function saveNewVisitOrder(detailList) {
+    const savedUser = loadDataFromLocal('loggedInUser');
+    if (!savedUser?.username) {
+      alert("未登录，无法保存顺序");
+      return;
+    }
+    // regroup
+    let newVisitedCountries = [];
+    detailList.forEach(item => {
+      let existing = newVisitedCountries.find(vc =>
+        vc.year === item.year && vc.country === item.country
       );
       if (existing) {
-        existing.cities.push({ city, cityZH: city });
+        existing.cities.push({ city: item.city, cityZH: item.cityZH });
       } else {
-        userObj.visitedCountries.push({
-          country: country,
-          countryZH: country,
-          year: parseInt(year, 10),
-          cities: [{ city, cityZH: city }]
+        newVisitedCountries.push({
+          year: item.year,
+          country: item.country,
+          countryZH: item.countryZH,
+          cities: [{ city: item.city, cityZH: item.cityZH }]
         });
       }
+    });
 
-      await fetch('/api/user-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      console.log(`已将 [${country}, ${city}, ${year}] 标记为已访问`);
-    } catch (err) {
-      console.error("markPlanAsVisited 出错:", err);
+    const res = await fetch('/api/user-data');
+    const data = await res.json();
+    if (!data.users[savedUser.username]) {
+      data.users[savedUser.username] = {
+        visitedCountries: [],
+        travelPlans: []
+      };
     }
+    data.users[savedUser.username].visitedCountries = newVisitedCountries;
+
+    await fetch('/api/user-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    console.log("已保存新的 visitedCountries 顺序 => user-data.json");
   }
 }

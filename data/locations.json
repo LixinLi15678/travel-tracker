@@ -1,5 +1,14 @@
 [
   {
+    "country": "中国",
+    "countryZH": "中国",
+    "city": "上海市, 中国",
+    "cityZH": "上海市, 中国",
+    "latitude": 31.2312707,
+    "longitude": 121.4700152,
+    "type": "visited"
+  },
+  {
     "country": "美国",
     "countryZH": "美国",
     "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
