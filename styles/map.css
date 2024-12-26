@@ -22,15 +22,35 @@
   
   /* ========== 自定义图例示例 ========== */
   .map-legend {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
+    /* 自带的 div 样式，可以稍微改一下，或保持你之前的 */
     background-color: rgba(255, 255, 255, 0.85);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    line-height: 1.4;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  
+    /* 控制宽度，如果想更紧凑可调小一些 */
+    max-width: 150px;
   }
+  
+  .legend-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    text-align: center; /* 或者 left/right 看你需求 */
+  }
+  
+  .legend-item {
+    display: flex;       /* 让图标与文字同一行 */
+    align-items: center; /* 垂直居中 */
+    margin-bottom: 0.5rem; 
+  }
+  
+  .legend-icon {
+    width: 20px; /* 或任何合适数值，让图标显得不那么胖 */
+    height: auto;  
+    margin-right: 6px; /* 图标与文字的间距 */
+  }  
   
   .map-legend h3 {
     margin-bottom: 0.5rem;

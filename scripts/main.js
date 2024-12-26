@@ -1,6 +1,7 @@
 /**
  * main.js
- * 整合：登录/注册、访问记录、旅行计划、删除 & 标记已访问、查看访问列表、拖拽排序
+ * 新增功能：点击 “绘制连线” 按钮，根据当前筛选的已访问记录获取坐标，
+ * 并调用 map.js 的 drawVisitedLine(coordsArray, color) 画出折线。
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ========== Tab 切换(登录/注册) ==========
+  // ========== Tab切换(登录/注册) ==========
   const tablinks = document.querySelectorAll('.tablink');
   const tabContents = document.querySelectorAll('.tab-content');
   tablinks.forEach(tab => {
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUserInfo(null);
   }
 
-  // ========== “开始记录”按钮 ==========
+  // “开始记录”按钮
   const startBtn = document.getElementById('startTrackingBtn');
   if (startBtn) {
     startBtn.addEventListener('click', () => {
@@ -131,6 +132,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ========= 新增部分：清除连线按钮 =========
+  const clearLinesBtn = document.getElementById('clearLinesBtn');
+  if (clearLinesBtn) {
+    clearLinesBtn.addEventListener('click', () => {
+      clearAllVisitedLines();  // 调用 map.js 提供的函数
+    });
+  }
+
+  // 绘制连线的事件
+  const drawLinesBtn = document.getElementById('drawLinesBtn');
+  if (drawLinesBtn) {
+    drawLinesBtn.addEventListener('click', () => {
+      // 若每次绘制前都清除旧线，可在这里加一行：
+      clearAllVisitedLines();
+      drawVisitedLineHandler();
+    });
+  }
+
   // ========== 旅行计划：添加 & 渲染 ==========
   const travelPlanForm = document.getElementById('travelPlanForm');
   if (travelPlanForm) {
@@ -148,10 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // 1) 本地存
       addTravelPlanLocal(plannedCountry, plannedCity, plannedYear, lat, lng);
 
-      // 2) 写到后端 user-data.json => travelPlans
+      // 2) 写后端 => travelPlans
       await addPlanToUserData(plannedCountry, plannedCity, plannedYear);
 
-      // 3) 写到 locations.json => type='plan' 并刷新地图 & 居中
+      // 3) locations.json => type='plan'
       if (lat && lng) {
         await addLocationToServer(plannedCountry, plannedCity, lat, lng, 'plan');
       } else {
@@ -162,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('plannedLat').value = '';
       document.getElementById('plannedLng').value = '';
 
-      // 重新渲染列表
       renderTravelPlanList();
     });
   }
@@ -173,11 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleAuthButtonClick() {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
-    // 已登录 => 登出
     localStorage.removeItem('loggedInUser');
     updateUserInfo(null);
   } else {
-    // 未登录 => 打开登录弹窗
     openAuthModal();
   }
 }
@@ -221,7 +237,6 @@ async function renderVisitedList(filterYear = 0) {
 
     visitedListEl.innerHTML = '';
 
-    // 未登录或无数据
     if (!username || !data.users[username]) {
       visitedStatsEl.textContent = "暂无记录";
       return;
@@ -244,7 +259,6 @@ async function renderVisitedList(filterYear = 0) {
     countries.forEach(c => totalCities += c.cities.length);
     visitedStatsEl.textContent = `已访问 ${totalCountries} 个国家，共 ${totalCities} 个城市。`;
 
-    // 展示
     countries.forEach(item => {
       const li = document.createElement('li');
       li.textContent = `${item.year} 年 - ${item.countryZH}（${item.country}） - ${item.cities.length} 个城市`;
@@ -253,6 +267,87 @@ async function renderVisitedList(filterYear = 0) {
   } catch (err) {
     console.error("加载访问记录出错:", err);
   }
+}
+
+/* ========== 新功能：绘制连线按钮点击 ========== */
+async function drawVisitedLineHandler() {
+  try {
+    const colorPicker = document.getElementById('lineColor');
+    let lineColor = '#ff0000';
+    if (colorPicker) {
+      lineColor = colorPicker.value;
+    }
+
+    const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
+    const savedUser = loadDataFromLocal('loggedInUser');
+    if (!savedUser || !savedUser.username) {
+      alert("请先登录，再查看已访问数据");
+      return;
+    }
+
+    // 拉取 user-data
+    const res = await fetch('/api/user-data');
+    const data = await res.json();
+    if (!data.users[savedUser.username]) {
+      alert("暂无访问记录");
+      return;
+    }
+
+    let visitedCountries = data.users[savedUser.username].visitedCountries || [];
+    if (filterYear !== 0) {
+      visitedCountries = visitedCountries.filter(v => v.year === filterYear);
+    }
+    if (visitedCountries.length === 0) {
+      alert("当前没有筛选到任何访问记录");
+      return;
+    }
+
+    // 扁平化
+    let visitedCities = [];
+    visitedCountries.forEach(vc => {
+      vc.cities.forEach(ct => {
+        visitedCities.push({ country: vc.country, city: ct.city });
+      });
+    });
+    if (visitedCities.length < 2) {
+      alert("至少要有2个访问城市才能绘制连线");
+      return;
+    }
+
+    // 拉取 locations.json
+    const locRes = await fetch('/api/locations');
+    const locData = await locRes.json();
+
+    // 匹配坐标
+    let coordsArray = [];
+    visitedCities.forEach(vc => {
+      let match = locData.find(ld =>
+        ld.city === vc.city && ld.country === vc.country
+      );
+      if (match) {
+        coordsArray.push({ lat: match.latitude, lng: match.longitude });
+      } else {
+        console.warn("找不到坐标 => ", vc.city, vc.country);
+      }
+    });
+    if (coordsArray.length < 2) {
+      alert("匹配到的坐标不足2个，无法连线");
+      return;
+    }
+
+    // 画线
+    drawVisitedLine(coordsArray, lineColor);
+  } catch (err) {
+    console.error("drawVisitedLineHandler出错:", err);
+  }
+}
+
+/**
+ * 清除当前地图上所有已绘制的连线
+ */
+function clearAllVisitedLines() {
+  // 调用 map.js 提供的函数
+  clearVisitedLines();
 }
 
 /* ========== 本地存旅行计划(带 lat,lng) ========== */
@@ -264,8 +359,9 @@ function addTravelPlanLocal(country, city, year, lat, lng) {
 
 /* ========== 写 user-data.json => travelPlans ========== */
 async function addPlanToUserData(country, city, year) {
+  // ... 与之前相同
   const savedUser = loadDataFromLocal('loggedInUser');
-  if (!savedUser?.username) return; // 未登录直接跳过
+  if (!savedUser?.username) return;
   try {
     const res = await fetch('/api/user-data');
     const data = await res.json();

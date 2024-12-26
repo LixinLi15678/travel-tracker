@@ -26,6 +26,7 @@
       <i class="fas fa-times"></i> 关闭
     </div>
     <div class="profile-section">
+      <!-- 若有头像可加，这里略 -->
       <h3 id="username">未登录</h3>
       <button id="loginOpenBtn">登录 / 注册</button>
     </div>
@@ -123,8 +124,16 @@
       </div>
       <p id="visitedStats"></p>
       <ul id="visitedList"></ul>
+
+      <!-- 下面两行是新加的：颜色选择器 & 绘制连线按钮 -->
+      <div style="margin-top:1rem;">
+        <label for="lineColor">连线颜色：</label>
+        <input type="color" id="lineColor" value="#ff0000" style="vertical-align: middle;">
+        <button id="drawLinesBtn">绘制连线</button>
+      </div>
     </section>
     
+    <!-- 查看访问列表的模态框 -->
     <div class="modal" id="visitListModal">
       <div class="modal-content">
         <span class="close-modal" id="visitListCloseBtn">&times;</span>
@@ -149,23 +158,21 @@
     <section id="travel-planner-section" class="travel-planner-section">
       <h2>我的旅行计划</h2>
       <form id="travelPlanForm">
-
-        <!-- 国家：增加 list="countryList" + <datalist> -->
+        <!-- 国家 -->
         <div class="form-group">
           <label for="plannedCountry">国家：</label>
           <input
             type="text"
             id="plannedCountry"
             name="plannedCountry"
-            list="countryList"   <!-- 关键: 让输入框和 datalist 关联 -->
+            list="countryList"
             placeholder="如：中国 / 美国"
             required
           >
-          <!-- 这里放一个空的 datalist，用 countries.js 来填充 -->
           <datalist id="countryList"></datalist>
         </div>
 
-        <!-- 城市：自定义下拉搜索 -->
+        <!-- 城市 -->
         <div class="form-group">
           <label for="plannedCity">城市：</label>
           <div class="autocomplete-wrapper">
@@ -211,7 +218,7 @@
 
   <!-- 你的脚本 -->
   <script src="scripts/geo.js"></script>
-  <script src="scripts/countries.js"></script> <!-- 在这里保证 countries.js 也被加载 -->
+  <script src="scripts/countries.js"></script>
   <script src="scripts/data.js"></script>
   <script src="scripts/main.js"></script>
   <script src="scripts/map.js"></script>

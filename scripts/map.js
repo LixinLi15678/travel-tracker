@@ -1,4 +1,7 @@
-// map.js
+/**
+ * map.js
+ * Leaflet地图逻辑 + 新增 drawVisitedLine(自动适应) + clearVisitedLines
+ */
 
 let map;
 
@@ -25,19 +28,16 @@ function loadLocationsAndMark() {
   fetch('data/locations.json')
     .then(res => res.json())
     .then(locData => {
-      // 先清理旧Marker、再添加(视需求实现)，这里就略
       locData.forEach(loc => {
         let markerIcon;
         if (loc.type === 'visited') {
-          // 显示“已访问”的图标
           markerIcon = L.icon({
-            iconUrl: 'assets/markers/marker-visited.png', 
+            iconUrl: 'assets/markers/marker-visited.png',
             iconSize: [30, 40]
           });
         } else {
-          // “plan”或默认
           markerIcon = L.icon({
-            iconUrl: 'assets/markers/marker-plan.png', 
+            iconUrl: 'assets/markers/marker-plan.png',
             iconSize: [30, 40]
           });
         }
@@ -56,27 +56,22 @@ function loadLocationsAndMark() {
     });
 }
 
-/**
- * 让地图移动/缩放到指定坐标
- */
-function centerMap(lat, lng, zoom = 8) {
-  if (!map) return;
-  map.setView([parseFloat(lat), parseFloat(lng)], zoom);
-}
-
-// 可选的地图图例
 function addMapLegend() {
   const legendControl = L.control({ position: 'bottomleft' });
   legendControl.onAdd = function() {
+    // 外层容器
     const div = L.DomUtil.create('div', 'map-legend');
     div.innerHTML = `
-      <h3>地图图例</h3>
+      <h3 class="legend-title">地图图例</h3>
+
       <div class="legend-item">
-        <span class="legend-color" style="background: #FF0000;"></span>
+        <!-- 让图片更小一些，比如宽30，高自动计算，也可直接宽高都定死 -->
+        <img src="assets/markers/marker-visited.png" alt="已访问" class="legend-icon">
         <span>已访问</span>
       </div>
+
       <div class="legend-item">
-        <span class="legend-color" style="background: #0000FF;"></span>
+        <img src="assets/markers/marker-plan.png" alt="计划" class="legend-icon">
         <span>计划</span>
       </div>
     `;
@@ -85,4 +80,57 @@ function addMapLegend() {
   legendControl.addTo(map);
 }
 
+
+/**
+ * 移动 & 缩放地图到指定坐标
+ */
+function centerMap(lat, lng, zoom = 8) {
+  if (!map) return;
+  map.setView([parseFloat(lat), parseFloat(lng)], zoom);
+}
 window.centerMap = centerMap;
+
+/**
+ * 全局存放已绘制的 polyline
+ */
+window.drawnPolylines = [];
+
+/**
+ * 绘制访问线路，自动适应地图到折线范围
+ */
+function drawVisitedLine(coordsArray, color = '#ff0000', autoFit = true) {
+  if (!map || !coordsArray || coordsArray.length < 2) return;
+
+  const latlngs = coordsArray.map(c => [c.lat, c.lng]);
+  const polyline = L.polyline(latlngs, {
+    color: color,
+    weight: 3,
+    opacity: 0.8
+  }).addTo(map);
+
+  // 存入全局
+  window.drawnPolylines.push(polyline);
+
+  // 自动适应
+  if (autoFit) {
+    map.fitBounds(polyline.getBounds());
+  }
+}
+
+window.drawVisitedLine = drawVisitedLine;
+
+/**
+ * 清除所有已绘制的线路
+ */
+function clearVisitedLines() {
+  if (!map || !window.drawnPolylines) return;
+
+  // 逐个从地图移除
+  window.drawnPolylines.forEach(pl => {
+    map.removeLayer(pl);
+  });
+  // 清空数组
+  window.drawnPolylines = [];
+}
+
+window.clearVisitedLines = clearVisitedLines;
