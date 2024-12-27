@@ -726,7 +726,8 @@ function renderTravelPlanList() {
       alert("未登录，无法保存顺序");
       return;
     }
-    // regroup
+  
+    // 1) regroup: 把 detailList（扁平）重新分组 => newVisitedCountries(仅包含当前year)
     let newVisitedCountries = [];
     detailList.forEach(item => {
       let existing = newVisitedCountries.find(vc =>
@@ -743,22 +744,42 @@ function renderTravelPlanList() {
         });
       }
     });
-
+  
+    // 2) 获取当前筛选年份
+    const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
+  
+    // 3) 读 user-data 并合并
     const res = await fetch('/api/user-data');
     const data = await res.json();
-    if (!data.users[savedUser.username]) {
-      data.users[savedUser.username] = {
+    const username = savedUser.username;
+  
+    if (!data.users[username]) {
+      data.users[username] = {
         visitedCountries: [],
         travelPlans: []
       };
     }
-    data.users[savedUser.username].visitedCountries = newVisitedCountries;
-
+    let oldVisited = data.users[username].visitedCountries || [];
+  
+    if (filterYear !== 0) {
+      // 只更新当前 year，其余保持不变
+      // 先拿出不匹配 filterYear 的记录:
+      const others = oldVisited.filter(vc => vc.year !== filterYear);
+      // 再把新数据(本year) 和 其他年份 合并
+      const finalVisited = others.concat(newVisitedCountries);
+  
+      data.users[username].visitedCountries = finalVisited;
+    } else {
+      // 说明 filterYear=0 => 用户想重排所有年份
+      data.users[username].visitedCountries = newVisitedCountries;
+    }
+  
+    // 4) POST 回后端
     await fetch('/api/user-data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(data)
     });
     console.log("已保存新的 visitedCountries 顺序 => user-data.json");
-  }
+  }  
 }
