@@ -79,7 +79,7 @@ router.get('/locations', (req, res) => {
  * 添加地点到 locations.json
  */
 router.post('/locations', (req, res) => {
-  const newLoc = req.body; // { country, city, latitude, longitude, ... }
+  const newLoc = req.body; // { username, latitude, longitude, city, country, type }
   const dataPath = path.join(__dirname, '../../data/locations.json');
 
   fs.readFile(dataPath, 'utf8', (err, fileData) => {

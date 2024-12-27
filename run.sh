@@ -12,7 +12,7 @@ node server/app.js &
 sleep 2
 
 # 3) 自动在默认浏览器打开 (Mac 下用 'open')
-open http://localhost:3000
+open http://localhost:3001
 
-echo "=== 已在浏览器打开 http://localhost:3000 ==="
+echo "=== 已在浏览器打开 http://localhost:3001 ==="
 echo "=== 若要停止服务，请在终端执行 'kill -9 [PID]' 或 Ctrl+C (如果前台运行) ==="

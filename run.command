@@ -15,9 +15,9 @@ node server/app.js &
 sleep 2
 
 # 4) 自动用默认浏览器打开
-open http://localhost:3000
+open http://localhost:3001
 
-echo "=== 已打开 http://localhost:3000 ==="
+echo "=== 已打开 http://localhost:3001 ==="
 echo "=== 服务器正在运行，按回车键退出并关闭窗口... ==="
 
 # 5) 保持Terminal窗口，不至于脚本结束后立即关闭

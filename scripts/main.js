@@ -124,24 +124,20 @@ document.addEventListener('DOMContentLoaded', () => {
     filterYearBtn.addEventListener('click', () => {
       const yearValue = parseInt(filterYearInput.value, 10) || 0;
       renderVisitedList(yearValue);
+      // ★ 同时过滤地图
+      loadLocationsAndMark(yearValue);
     });
   }
   if (showAllBtn) {
     showAllBtn.addEventListener('click', () => {
       filterYearInput.value = '';
-      renderVisitedList();
+      renderVisitedList(0);
+      // ★ 同时地图显示全部
+      loadLocationsAndMark(0);
     });
   }
 
-  // 清除连线按钮
-  const clearLinesBtn = document.getElementById('clearLinesBtn');
-  if (clearLinesBtn) {
-    clearLinesBtn.addEventListener('click', () => {
-      clearAllVisitedLines();  // 调用 map.js 提供的函数
-    });
-  }
-
-  // 绘制连线事件
+  // 绘制连线也可以先清空旧线
   const drawLinesBtn = document.getElementById('drawLinesBtn');
   if (drawLinesBtn) {
     drawLinesBtn.addEventListener('click', () => {
@@ -150,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ========== 旅行计划：添加 & 渲染 ==========
+  // 旅行计划表单
   const travelPlanForm = document.getElementById('travelPlanForm');
   if (travelPlanForm) {
     travelPlanForm.addEventListener('submit', async (e) => {
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 3) locations.json => type='plan'
       if (lat && lng) {
-        await addLocationToServer(plannedCountry, plannedCity, lat, lng, 'plan');
+        await addLocationToServer(plannedCountry, plannedCity, lat, lng, 'plan', plannedYear);
       } else {
         console.warn("未选择城市下拉结果，无法标注地图");
       }
@@ -185,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   renderTravelPlanList();
+  renderVisitedList(); // 初始化时显示
 });
 
 /* ========== 登录按钮点击：已登录 => 登出; 未登录 => 弹窗 ========== */
@@ -403,16 +400,24 @@ async function addPlanToUserData(country, city, year) {
 }
 
 /* ========== 写 locations.json => type='plan' or 'visited' ========== */
-async function addLocationToServer(country, city, lat, lng, type) {
+async function addLocationToServer(country, city, lat, lng, type, year) {
+  const savedUser = loadDataFromLocal('loggedInUser');
+  if (!savedUser || !savedUser.username) {
+    console.warn("未登录，无法添加地点");
+    return;
+  }
+
   try {
     const newLoc = {
+      username: savedUser.username,
       country: country,
       countryZH: country,
       city: city,
       cityZH: city,
       latitude: parseFloat(lat),
       longitude: parseFloat(lng),
-      type: type 
+      type: type, 
+      year: parseInt(year) || 0
     };
     const res = await fetch('/api/locations', {
       method: 'POST',
@@ -420,9 +425,10 @@ async function addLocationToServer(country, city, lat, lng, type) {
       body: JSON.stringify(newLoc)
     });
     await res.json();
-    console.log("已写入 locations.json");
-    loadLocationsAndMark();
-    centerMap(lat, lng, 8);
+    console.log("已写入 locations.json, 带 username");
+
+    // 重新加载地图
+    loadLocationsAndMark(0); // 或保持原状态
   } catch (err) {
     console.error("addLocationToServer 失败:", err);
   }
