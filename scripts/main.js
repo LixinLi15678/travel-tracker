@@ -1,6 +1,8 @@
 /**
  * main.js
- * 并调用 map.js 的 drawVisitedLine(coordsArray, color) 画出折线。
+ * 包含两大改动：
+ * 1) 标记已访问后也同步删除后端 travelPlans (removePlanFromUserData)
+ * 2) 在 renderVisitedList 中统计 unique city
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -107,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const startBtn = document.getElementById('startTrackingBtn');
   if (startBtn) {
     startBtn.addEventListener('click', () => {
-      alert("开始记录吧！凝凝专属！");
+      alert("开始记录吧！测试专属！");
       document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
     });
   }
@@ -131,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ========= 新增部分：清除连线按钮 =========
+  // 清除连线按钮
   const clearLinesBtn = document.getElementById('clearLinesBtn');
   if (clearLinesBtn) {
     clearLinesBtn.addEventListener('click', () => {
@@ -139,11 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 绘制连线的事件
+  // 绘制连线事件
   const drawLinesBtn = document.getElementById('drawLinesBtn');
   if (drawLinesBtn) {
     drawLinesBtn.addEventListener('click', () => {
-      // 若每次绘制前都清除旧线，可在这里加一行：
       clearAllVisitedLines();
       drawVisitedLineHandler();
     });
@@ -222,7 +223,7 @@ function updateUserInfo(userObj) {
   }
 }
 
-/* ========== 已访问：渲染 & 筛选 ========== */
+/* ========== 已访问：渲染 & 筛选 + unique城市统计 ========== */
 async function renderVisitedList(filterYear = 0) {
   try {
     const res = await fetch('/api/user-data');
@@ -253,11 +254,21 @@ async function renderVisitedList(filterYear = 0) {
       return;
     }
 
+    // 计算 国家数
     const totalCountries = countries.length;
-    let totalCities = 0;
-    countries.forEach(c => totalCities += c.cities.length);
-    visitedStatsEl.textContent = `已访问 ${totalCountries} 个国家，共 ${totalCities} 个城市。`;
 
+    // 计算城市：unique
+    let citySet = new Set();
+    countries.forEach(item => {
+      item.cities.forEach(ct => {
+        citySet.add(ct.city); 
+      });
+    });
+    const totalCities = citySet.size;
+
+    visitedStatsEl.textContent = `已访问 ${totalCountries} 个国家，共 ${totalCities} 个唯一城市。`;
+
+    // 你可以按原逻辑渲染详情
     countries.forEach(item => {
       const li = document.createElement('li');
       li.textContent = `${item.year} 年 - ${item.countryZH}（${item.country}） - ${item.cities.length} 个城市`;
@@ -271,21 +282,20 @@ async function renderVisitedList(filterYear = 0) {
 /* ========== 新功能：绘制连线按钮点击 ========== */
 async function drawVisitedLineHandler() {
   try {
-    // 1) 获取颜色
+    // 获取颜色
     const colorPicker = document.getElementById('lineColor');
     let lineColor = '#ff0000';
     if (colorPicker) {
       lineColor = colorPicker.value;
     }
 
-    // 2) 获取线宽
+    // 获取线宽
     const weightInput = document.getElementById('lineWeight');
     let lineWeight = 3;
     if (weightInput) {
       lineWeight = parseInt(weightInput.value, 10) || 3;
     }
 
-    // 3) 读取已访问记录(跟之前逻辑一样)
     const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
     const savedUser = loadDataFromLocal('loggedInUser');
     if (!savedUser || !savedUser.username) {
@@ -341,7 +351,7 @@ async function drawVisitedLineHandler() {
       return;
     }
 
-    // 4) 调用 drawVisitedLine 时，带上 lineWeight
+    // 画线
     drawVisitedLine(coordsArray, lineColor, true, lineWeight);
 
   } catch (err) {
@@ -353,8 +363,7 @@ async function drawVisitedLineHandler() {
  * 清除当前地图上所有已绘制的连线
  */
 function clearAllVisitedLines() {
-  // 调用 map.js 提供的函数
-  clearVisitedLines();
+  clearVisitedLines(); 
 }
 
 /* ========== 本地存旅行计划(带 lat,lng) ========== */
@@ -366,7 +375,6 @@ function addTravelPlanLocal(country, city, year, lat, lng) {
 
 /* ========== 写 user-data.json => travelPlans ========== */
 async function addPlanToUserData(country, city, year) {
-  // ... 与之前相同
   const savedUser = loadDataFromLocal('loggedInUser');
   if (!savedUser?.username) return;
   try {
@@ -386,7 +394,7 @@ async function addPlanToUserData(country, city, year) {
 
     await fetch('/api/user-data', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(data)
     });
   } catch (err) {
@@ -394,7 +402,7 @@ async function addPlanToUserData(country, city, year) {
   }
 }
 
-/* ========== 写 locations.json => type='plan' or 'visited' + 刷新地图 + 居中 ========== */
+/* ========== 写 locations.json => type='plan' or 'visited' ========== */
 async function addLocationToServer(country, city, lat, lng, type) {
   try {
     const newLoc = {
@@ -413,22 +421,18 @@ async function addLocationToServer(country, city, lat, lng, type) {
     });
     await res.json();
     console.log("已写入 locations.json");
-
-    // 刷新地图 Marker
     loadLocationsAndMark();
-    // 聚焦(若 map.js 提供了 centerMap)
     centerMap(lat, lng, 8);
-
   } catch (err) {
     console.error("addLocationToServer 失败:", err);
   }
 }
 
-/* ========== 删除地点: /api/locations/remove ========== */
+/* ========== 删除后端地点 ========== */
 async function removeLocationFromServer(lat, lng) {
   try {
     const body = { latitude: parseFloat(lat), longitude: parseFloat(lng) };
-    const res = await fetch('/api/locations/remove', {
+    await fetch('/api/locations/remove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -439,7 +443,7 @@ async function removeLocationFromServer(lat, lng) {
   }
 }
 
-/* ========== 标记已访问: 写 user-data.json => visitedCountries ========== */
+/* ========== 标记已访问并删除 TravelPlan ========== */
 async function markPlanAsVisited(country, city, year) {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (!savedUser?.username) {
@@ -447,47 +451,54 @@ async function markPlanAsVisited(country, city, year) {
     return;
   }
   try {
+    // 1) 获取 user-data
     const res = await fetch('/api/user-data');
     const data = await res.json();
+
     if (!data.users[savedUser.username]) {
-      data.users[savedUser.username] = {
-        visitedCountries: [],
-        travelPlans: []
-      };
+      data.users[savedUser.username] = { visitedCountries: [], travelPlans: [] };
     }
     let userObj = data.users[savedUser.username];
     if (!Array.isArray(userObj.visitedCountries)) {
       userObj.visitedCountries = [];
     }
+    if (!Array.isArray(userObj.travelPlans)) {
+      userObj.travelPlans = [];
+    }
 
-    // 如果已有相同 (country + year)，往 cities[] 追加即可
+    // 2) 把 (country, city, year) 加到 visitedCountries
     let existing = userObj.visitedCountries.find(v =>
-      v.country === country && v.year === parseInt(year, 10)
+      v.country === country && parseInt(v.year) === parseInt(year)
     );
     if (existing) {
       existing.cities.push({ city, cityZH: city });
     } else {
-      // 新建
       userObj.visitedCountries.push({
-        country: country,
+        country,
         countryZH: country,
-        year: parseInt(year, 10),
+        year: parseInt(year),
         cities: [{ city, cityZH: city }]
       });
     }
 
+    // 3) 同时从 travelPlans 里删除对应的记录
+    userObj.travelPlans = userObj.travelPlans.filter(tp =>
+      !(tp.country === country && tp.city === city && String(tp.year) === String(year))
+    );
+
+    // 4) 写回 user-data
     await fetch('/api/user-data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    console.log(`已将 [${country}, ${city}, ${year}] 标记为已访问`);
+    console.log(`已将 [${country}, ${city}, ${year}] 标记为已访问，并删除对应travelPlan`);
   } catch (err) {
     console.error("markPlanAsVisited 出错:", err);
   }
 }
 
-/* ========== 更新地点类型 => /api/locations PATCH ========== */
+/* ========== 更新地点类型 => visited / plan ========== */
 async function updateLocationTypeOnServer(lat, lng, newType) {
   try {
     const body = {
@@ -524,15 +535,12 @@ function renderTravelPlanList() {
     removeBtn.textContent = '删除';
     removeBtn.style.marginLeft = '1rem';
     removeBtn.addEventListener('click', async () => {
-      // 如果地图上有 plan 标记 => remove
       if (item.lat && item.lng) {
         await removeLocationFromServer(item.lat, item.lng);
       }
-      // 本地数组里删
       planList.splice(index, 1);
       saveDataToLocal('travelPlanList', planList);
       renderTravelPlanList();
-      // 刷新地图
       loadLocationsAndMark();
     });
 
@@ -541,7 +549,7 @@ function renderTravelPlanList() {
     visitedBtn.textContent = '标记已访问';
     visitedBtn.style.marginLeft = '1rem';
     visitedBtn.addEventListener('click', async () => {
-      // 写 user-data.json => visitedCountries
+      // 后端：加到 visitedCountries，并从 travelPlans 删除
       await markPlanAsVisited(item.country, item.city, item.year);
 
       // 改地点 type => visited
@@ -549,7 +557,7 @@ function renderTravelPlanList() {
         await updateLocationTypeOnServer(item.lat, item.lng, 'visited');
       }
 
-      // 本地删
+      // 前端本地：从 planList 删除
       planList.splice(index, 1);
       saveDataToLocal('travelPlanList', planList);
 
@@ -563,7 +571,7 @@ function renderTravelPlanList() {
     travelPlanListEl.appendChild(li);
   });
 
-  // ========== “查看访问列表”按钮 & 弹窗部分 (如果需要拖拽排序) ==========
+  // ========== “查看访问列表”按钮 & 弹窗部分 (拖拽排序) ========== 
   const viewVisitListBtn = document.getElementById('viewVisitListBtn');
   const visitListModal = document.getElementById('visitListModal');
   const visitListCloseBtn = document.getElementById('visitListCloseBtn');
@@ -659,7 +667,6 @@ function renderTravelPlanList() {
     }
   }
 
-  // 拖拽排序逻辑(若不需要可删除)
   function initDragAndDrop(detailList) {
     const listEl = document.getElementById('visitDraggableList');
     if (!listEl) return;
@@ -707,27 +714,13 @@ function renderTravelPlanList() {
     arr.splice(toIndex, 0, item);
   }
 
-  function reRenderDragList(detailList) {
-    const listEl = document.getElementById('visitDraggableList');
-    if (!listEl) return;
-    let newHTML = '';
-    detailList.forEach((item, idx) => {
-      newHTML += `
-        <li draggable="true" data-index="${idx}">
-          ${item.year} - ${item.countryZH}（${item.country}） - ${item.cityZH}（${item.city}）
-        </li>`;
-    });
-    listEl.innerHTML = newHTML;
-  }
-
   async function saveNewVisitOrder(detailList) {
     const savedUser = loadDataFromLocal('loggedInUser');
     if (!savedUser?.username) {
       alert("未登录，无法保存顺序");
       return;
     }
-  
-    // 1) regroup: 把 detailList（扁平）重新分组 => newVisitedCountries(仅包含当前year)
+    // regroup
     let newVisitedCountries = [];
     detailList.forEach(item => {
       let existing = newVisitedCountries.find(vc =>
@@ -744,42 +737,76 @@ function renderTravelPlanList() {
         });
       }
     });
-  
-    // 2) 获取当前筛选年份
+
+    // 读取 filterYear
     const filterYear = parseInt(document.getElementById('filterYear').value, 10) || 0;
-  
-    // 3) 读 user-data 并合并
+
     const res = await fetch('/api/user-data');
     const data = await res.json();
     const username = savedUser.username;
-  
     if (!data.users[username]) {
-      data.users[username] = {
-        visitedCountries: [],
-        travelPlans: []
-      };
+      data.users[username] = { visitedCountries: [], travelPlans: [] };
     }
     let oldVisited = data.users[username].visitedCountries || [];
-  
+
     if (filterYear !== 0) {
-      // 只更新当前 year，其余保持不变
-      // 先拿出不匹配 filterYear 的记录:
+      // 只更新该年份
       const others = oldVisited.filter(vc => vc.year !== filterYear);
-      // 再把新数据(本year) 和 其他年份 合并
       const finalVisited = others.concat(newVisitedCountries);
-  
       data.users[username].visitedCountries = finalVisited;
     } else {
-      // 说明 filterYear=0 => 用户想重排所有年份
+      // 如果filterYear=0 =>全部更新
       data.users[username].visitedCountries = newVisitedCountries;
     }
-  
-    // 4) POST 回后端
+
     await fetch('/api/user-data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify(data)
     });
     console.log("已保存新的 visitedCountries 顺序 => user-data.json");
-  }  
+  }
+}
+
+/* ========== LocalStorage 工具 ========== */
+function saveDataToLocal(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error("保存到LocalStorage失败：", error);
+  }
+}
+function loadDataFromLocal(key) {
+  try {
+    const rawData = localStorage.getItem(key);
+    return rawData ? JSON.parse(rawData) : null;
+  } catch (error) {
+    console.error("从LocalStorage读取数据失败：", error);
+    return null;
+  }
+}
+
+// 其他可选API函数
+async function saveUserDataToServer(userData) {
+  try {
+    const response = await fetch('/api/user-data', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  } catch (err) {
+    console.error("提交用户数据到服务器失败：", err);
+    return null;
+  }
+}
+
+async function fetchUserDataFromServer() {
+  try {
+    const response = await fetch('/api/user-data');
+    return response.json();
+  } catch (err) {
+    console.error("获取用户数据失败：", err);
+    return null;
+  }
 }
