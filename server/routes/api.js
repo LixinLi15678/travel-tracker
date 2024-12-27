@@ -1,10 +1,14 @@
+/**
+ * api.js
+ */
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
 /**
- * 获取 user-data.json
+ * GET /api/user-data
+ * 读取 user-data.json
  */
 router.get('/user-data', (req, res) => {
   const dataPath = path.join(__dirname, '../../data/user-data.json');
@@ -24,37 +28,61 @@ router.get('/user-data', (req, res) => {
 });
 
 /**
- * 保存 user-data.json
- * 这里假设提交的数据是: { "users": { "Alice": { ... }, "Bob": {...} } }
+ * POST /api/user-data
+ * 这里合并 newData.users 到 existingData.users
  */
 router.post('/user-data', (req, res) => {
-  const newData = req.body; // 可能是 { users: {...} } 结构
+  const newData = req.body;  // 期待结构 { "users": { "Leo": {...} } }
   const dataPath = path.join(__dirname, '../../data/user-data.json');
 
   fs.readFile(dataPath, 'utf8', (err, fileData) => {
-    let currentData = { users: {} };
+    let existingData = { users: {} };
     if (!err && fileData) {
       try {
-        currentData = JSON.parse(fileData);
-      } catch (e) {
-        console.error("解析现有 user-data.json 失败：", e);
+        existingData = JSON.parse(fileData); // 现有 user-data.json
+      } catch (parseErr) {
+        console.error("解析 user-data.json 失败：", parseErr);
       }
     }
+    if (!existingData.users) existingData.users = {};
+
     // 合并
-    if (newData.users) {
-      currentData.users = newData.users;
+    if (newData && newData.users) {
+      for (const username in newData.users) {
+        if (!existingData.users[username]) {
+          existingData.users[username] = newData.users[username];
+        } else {
+          // 合并 visitedCountries, travelPlans
+          mergeUserData(existingData.users[username], newData.users[username]);
+        }
+      }
+    } else {
+      console.warn("newData.users 不存在，可能什么也不会更新");
     }
 
-    fs.writeFile(dataPath, JSON.stringify(currentData, null, 2), 'utf8', (err2) => {
+    fs.writeFile(dataPath, JSON.stringify(existingData, null, 2), 'utf8', (err2) => {
       if (err2) {
         console.error('写入 user-data.json 失败：', err2);
         return res.status(500).json({ error: '无法保存用户数据' });
       }
-      res.json({ success: true, message: 'user-data 已保存', data: currentData });
+      res.json({ success: true, message: '已合并保存 user-data', data: existingData });
     });
   });
 });
 
+/** 合并逻辑，可自定义 */
+function mergeUserData(oldUserData, newUserData) {
+  if (!oldUserData.visitedCountries) oldUserData.visitedCountries = [];
+  if (!oldUserData.travelPlans) oldUserData.travelPlans = [];
+
+  if (newUserData.visitedCountries) {
+    // 这里可以做更细的去重等
+    oldUserData.visitedCountries = newUserData.visitedCountries;
+  }
+  if (newUserData.travelPlans) {
+    oldUserData.travelPlans = newUserData.travelPlans;
+  }
+}
 /**
  * 获取 locations.json
  */

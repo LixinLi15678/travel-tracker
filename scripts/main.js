@@ -86,16 +86,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (registerForm) {
-    registerForm.addEventListener('submit', (e) => {
+    registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = e.target.registerUsername.value.trim();
       if (!username) return;
-      // 注册
+  
+      // 1) 前端本地存
       saveDataToLocal('loggedInUser', { username });
       updateUserInfo({ nickname: username });
       closeAuthModal();
+  
+      // 2) 后端 => user-data.json: 创建该用户
+      try {
+        // 先拉取现有 user-data
+        let res = await fetch('/api/user-data');
+        let data = await res.json();
+  
+        // 若 data.users 不存在就补
+        if (!data.users) data.users = {};
+        // 若 data.users[username] 不存在就初始化
+        if (!data.users[username]) {
+          data.users[username] = {
+            visitedCountries: [],
+            travelPlans: []
+          };
+        }
+        // POST 回后端
+        await fetch('/api/user-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        console.log("注册: 已在后端创建用户", username);
+      } catch (err) {
+        console.error("注册时写后端失败:", err);
+      }
     });
-  }
+  }  
 
   // ========== 登录状态回显 ==========
   const savedUser = loadDataFromLocal('loggedInUser');
