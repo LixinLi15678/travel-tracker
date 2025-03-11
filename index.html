@@ -841,23 +841,33 @@
     // 确保Demo登录提示一开始就显示
     document.addEventListener('DOMContentLoaded', function() {
       console.log("检查是否需要显示登录提示");
-      // 立即触发一次登录提示检查
-      setTimeout(function() {
-        const savedUser = localStorage.getItem('loggedInUser');
-        if (!savedUser || savedUser === "null" || savedUser === "undefined") {
-          console.log("未检测到登录，显示Demo登录提示");
-          if (typeof window.showDemoLoginOption === 'function') {
-            window.showDemoLoginOption();
-          } else {
-            console.error("showDemoLoginOption 函数未定义");
-            // 尝试直接登录为demo用户
-            localStorage.setItem('loggedInUser', JSON.stringify({ username: 'demo' }));
-            location.reload();
-          }
+      // 直接使用localStorage，不通过helper函数
+      let savedUserJson = localStorage.getItem('loggedInUser');
+      let isLoggedIn = false;
+      
+      try {
+        const savedUser = JSON.parse(savedUserJson);
+        isLoggedIn = !!(savedUser && savedUser.username);
+        console.log("登录状态:", isLoggedIn, savedUser);
+      } catch (e) {
+        console.error("解析保存的用户数据出错:", e);
+      }
+      
+      if (!isLoggedIn) {
+        console.log("用户未登录，立即显示登录提示");
+        // 确保只执行一次
+        if (typeof window.showDemoLoginOption === 'function') {
+          window.showDemoLoginOption();
         } else {
-          console.log("用户已登录，不显示Demo登录提示");
+          console.error("showDemoLoginOption函数未定义");
+          // 给脚本完全加载的时间
+          setTimeout(() => {
+            if (typeof window.showDemoLoginOption === 'function') {
+              window.showDemoLoginOption();
+            }
+          }, 300);
         }
-      }, 300);
+      }
     });
   </script>
   <!-- Loading indicator -->

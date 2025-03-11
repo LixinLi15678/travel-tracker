@@ -36,7 +36,11 @@ async function updateStatistics() {
     // Fetch locations
     const locRes = await fetch('/api/locations');
     const locations = await locRes.json();
-    const userLocations = locations.filter(loc => loc.username === savedUser.username);
+    const userLocations = locations.filter(loc => 
+      loc.username === savedUser.username
+    );
+    
+    console.log("Processing statistics data:", userLocations);
     
     // Process statistics based on data structure
     let visitedCountriesCount = 0;
@@ -88,130 +92,55 @@ async function updateStatistics() {
       'Fiji': 'Oceania', '斐济': 'Oceania'
     };
 
-    // Check which data structure is being used
-    if (Array.isArray(userData.visitedCountries) && userData.visitedCountries.length > 0) {
-      // Using nested structure
-      visitedCountriesCount = userData.visitedCountries.length;
-      
-      // Count unique cities
-      let uniqueCities = new Set();
-      userData.visitedCountries.forEach(country => {
-        // Update continent count
-        const continent = continentMapping[country.country] || 
-                          continentMapping[country.countryZH] || 'Other';
-        continentData[continent]++;
-        
-        // Update yearly stats
-        if (!yearlyStats[country.year]) {
-          yearlyStats[country.year] = 0;
-        }
-        
-        if (Array.isArray(country.cities)) {
-          yearlyStats[country.year] += country.cities.length;
-          country.cities.forEach(city => {
-            uniqueCities.add(city.city);
-          });
-        }
-      });
-      
-      visitedCitiesCount = uniqueCities.size;
-    } else if (Array.isArray(userData.visitedCities) && userData.visitedCities.length > 0) {
-      // Using flat structure
+    // Get data from userLocations for all years (including 2024)
+    const visitedLocations = userLocations.filter(loc => loc.type === 'visited');
+    
+    if (visitedLocations.length > 0) {
       const countries = new Set();
       const cities = new Set();
       const yearCityCounts = {};
       
-      userData.visitedCities.forEach(visit => {
-        countries.add(visit.country);
-        cities.add(visit.city);
+      visitedLocations.forEach(loc => {
+        countries.add(loc.country);
+        cities.add(loc.city);
         
         // Update continent count
-        const continent = continentMapping[visit.country] || 
-                          continentMapping[visit.countryZH] || 'Other';
+        const continent = continentMapping[loc.country] || 
+                          continentMapping[loc.countryZH] || 'Other';
         continentData[continent]++;
         
         // Update yearly stats
-        const year = visit.year;
-        if (!yearCityCounts[year]) {
-          yearCityCounts[year] = 0;
+        const year = parseInt(loc.year);
+        if (year) {
+          if (!yearCityCounts[year]) {
+            yearCityCounts[year] = 0;
+          }
+          yearCityCounts[year]++;
         }
-        yearCityCounts[year]++;
       });
       
       visitedCountriesCount = countries.size;
       visitedCitiesCount = cities.size;
       yearlyStats = yearCityCounts;
-    } else {
-      // Try to get data directly from locations
-      const visitedLocations = userLocations.filter(loc => loc.type === 'visited');
-      
-      if (visitedLocations.length > 0) {
-        const countries = new Set();
-        const cities = new Set();
-        const yearCityCounts = {};
-        
-        visitedLocations.forEach(loc => {
-          countries.add(loc.country);
-          cities.add(loc.city);
-          
-          // Update continent count
-          const continent = continentMapping[loc.country] || 
-                            continentMapping[loc.countryZH] || 'Other';
-          continentData[continent]++;
-          
-          // Update yearly stats
-          const year = loc.year;
-          if (year) {
-            if (!yearCityCounts[year]) {
-              yearCityCounts[year] = 0;
-            }
-            yearCityCounts[year]++;
-          }
-        });
-        
-        visitedCountriesCount = countries.size;
-        visitedCitiesCount = cities.size;
-        yearlyStats = yearCityCounts;
-      }
     }
     
-    // Update DOM with proper error handling
-    const totalCountriesCountEl = document.getElementById('totalCountriesCount');
-    const totalCitiesCountEl = document.getElementById('totalCitiesCount');
-    const plannedLocationsCountEl = document.getElementById('plannedLocationsCount');
+    console.log("Yearly stats:", yearlyStats);
     
-    if (totalCountriesCountEl) totalCountriesCountEl.textContent = visitedCountriesCount;
-    if (totalCitiesCountEl) totalCitiesCountEl.textContent = visitedCitiesCount;
+    // Update DOM
+    document.getElementById('totalCountriesCount').textContent = visitedCountriesCount;
+    document.getElementById('totalCitiesCount').textContent = visitedCitiesCount;
     
     // Update planned locations count
-    let plannedCount = Array.isArray(userData.travelPlans) ? userData.travelPlans.length : 0;
+    let plannedCount = userLocations.filter(loc => loc.type === 'plan').length;
     
-    // If no travel plans found in userData, check locations
-    if (plannedCount === 0) {
-      plannedCount = userLocations.filter(loc => loc.type === 'plan').length;
-    }
-    
-    if (plannedLocationsCountEl) plannedLocationsCountEl.textContent = plannedCount;
+    document.getElementById('plannedLocationsCount').textContent = plannedCount;
     
     // Calculate total distance
     calculateTotalDistance(userLocations);
     
-    // Create charts with error handling
-    try {
-      createYearlyStatsChart(yearlyStats);
-    } catch (err) {
-      console.error("Error creating yearly stats chart:", err);
-      // Create empty chart as fallback
-      createYearlyStatsChart({});
-    }
-    
-    try {
-      createContinentCoverageChart(continentData);
-    } catch (err) {
-      console.error("Error creating continent coverage chart:", err);
-      // Create empty chart as fallback
-      createContinentCoverageChart({});
-    }
+    // Create charts
+    createYearlyStatsChart(yearlyStats);
+    createContinentCoverageChart(continentData);
     
   } catch (err) {
     console.error("Error updating statistics:", err);

@@ -62,7 +62,7 @@
     "cityZH": "罗马",
     "latitude": 41.9028,
     "longitude": 12.4964,
-    "type": "plan",
+    "type": "visited",
     "year": 2024
   },
   {
@@ -117,6 +117,17 @@
     "cityZH": "北京市, 中国",
     "latitude": 40.190632,
     "longitude": 116.412144,
+    "type": "visited",
+    "year": 2026
+  },
+  {
+    "username": "demo",
+    "country": "法国",
+    "countryZH": "法国",
+    "city": "巴黎, 法兰西岛大区 / 法蘭西島大區, 法國本土/法国本土, 法国",
+    "cityZH": "巴黎, 法兰西岛大区 / 法蘭西島大區, 法國本土/法国本土, 法国",
+    "latitude": 48.8534951,
+    "longitude": 2.3483915,
     "type": "visited",
     "year": 2026
   }

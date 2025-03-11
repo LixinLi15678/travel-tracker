@@ -6,6 +6,7 @@
  */
 
 let map;
+let legendControl = null;
 
 // 用来管理 Marker，方便清除旧的 Marker
 let markerGroup = null;
@@ -51,13 +52,24 @@ function loadLocationsAndMark(filterYear = 0) {
   }
   markerGroup = L.layerGroup().addTo(map);
 
+  // Remove existing legend if any
+  if (legendControl) {
+    map.removeControl(legendControl);
+    legendControl = null;
+  }
+
   // ★ 获取当前登录用户
   const savedUser = loadDataFromLocal('loggedInUser');
   const currentUsername = savedUser?.username || null;
 
+  console.log("Loading markers for user:", currentUsername);
+
   fetch('/api/locations')
     .then(res => res.json())
     .then(locData => {
+      console.log("Loaded locations data:", locData.length);
+      let markersAdded = 0;
+      
       // 逐条判断
       locData.forEach(loc => {
         // 若没有登录或 loc.username != 当前用户 => 不渲染
@@ -75,36 +87,51 @@ function loadLocationsAndMark(filterYear = 0) {
         if (loc.type === 'visited') {
           markerIcon = L.icon({
             iconUrl: 'assets/markers/marker-visited.png',
-            iconSize: [16, 25]
+            iconSize: [20, 32], // Slightly bigger for better visibility
+            iconAnchor: [10, 32],
+            popupAnchor: [0, -32]
           });
         } else {
           markerIcon = L.icon({
             iconUrl: 'assets/markers/marker-plan.png',
-            iconSize: [16, 25]
+            iconSize: [20, 32],
+            iconAnchor: [10, 32],
+            popupAnchor: [0, -32]
           });
         }
 
         // 创建 Marker
-        const marker = L.marker([loc.latitude, loc.longitude], { icon: markerIcon });
+        const lat = parseFloat(loc.latitude);
+        const lng = parseFloat(loc.longitude);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+          console.warn("Invalid coordinates:", loc);
+          return;
+        }
+        
+        const marker = L.marker([lat, lng], { icon: markerIcon });
         // 绑定 Popup
         marker.bindPopup(`
           <h3>${loc.cityZH || loc.city}</h3>
           <p>国家：${loc.countryZH || loc.country}</p>
-          <p>坐标：${loc.latitude}, ${loc.longitude}</p>
+          <p>坐标：${lat}, ${lng}</p>
           <p>年份：${loc.year || '无'}</p>
           <p>类型：${loc.type === 'visited' ? '已访问' : '计划'}</p>
         `);
 
         marker.addTo(markerGroup);
+        markersAdded++;
       });
       
-      // 添加图例 (确保在所有标记添加完毕后添加)
-      addMapLegend();
+      console.log("Added markers:", markersAdded);
+      
+      // Add legend AFTER all markers are added
+      if (markersAdded > 0) {
+        addMapLegend();
+      }
     })
     .catch(err => {
       console.error("地点数据加载失败：", err);
-      // 即使加载失败也添加图例
-      addMapLegend();
     });
 }
 
@@ -112,13 +139,6 @@ function loadLocationsAndMark(filterYear = 0) {
  * 在地图上添加图例(可自定义)
  */
 function addMapLegend() {
-  // First remove any existing legend
-  if (legendControl) {
-    map.removeControl(legendControl);
-    legendControl = null;
-  }
-  
-  // Create a new legend
   legendControl = L.control({ position: 'bottomleft' });
   legendControl.onAdd = function() {
     const div = L.DomUtil.create('div', 'map-legend');

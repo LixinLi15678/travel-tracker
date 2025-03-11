@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // 立即更新登录状态并检查是否显示demo登录选项
   updateLoginState();
+  addBackToTopButton();
 
   // ====== 侧边栏 ======
   const sidebar = document.getElementById('sidebar');
@@ -362,10 +363,9 @@ function updateLoginState() {
 }
 
 /**
- * Enhanced showDemoLoginOption that ensures the demo login prompt is displayed
+ * Show demo login option - center on screen and block interactions
  */
 function showDemoLoginOption() {
-  console.log("执行 showDemoLoginOption 函数");
   // Skip if user is already logged in
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
@@ -373,14 +373,12 @@ function showDemoLoginOption() {
     return;
   }
   
-  // Remove any existing prompt
-  const existingPrompt = document.querySelector('.demo-login-prompt');
-  if (existingPrompt) {
-    document.body.removeChild(existingPrompt);
+  // Check if prompt is already showing
+  if (document.querySelector('.demo-login-prompt')) {
+    console.log("登录提示已经存在，不重复显示");
+    return;
   }
   
-  console.log("创建登录提示界面");
-
   // Create the demo login prompt
   const demoPrompt = document.createElement('div');
   demoPrompt.className = 'demo-login-prompt';
@@ -404,17 +402,11 @@ function showDemoLoginOption() {
   
   cancelBtn.addEventListener('click', () => {
     document.body.removeChild(demoPrompt);
-    
-    // 只在当前会话内阻止再次显示
-    sessionStorage.setItem('demoLoginDeclined', 'true');
   });
   
   demoBtn.addEventListener('click', () => {
     loginAsDemoUser();
     document.body.removeChild(demoPrompt);
-    
-    // Store in sessionStorage to remember during the session
-    sessionStorage.setItem('demoLoginShown', 'true');
   });
 }
 
@@ -422,8 +414,9 @@ function showDemoLoginOption() {
  * Login as demo user and load all data
  */
 function loginAsDemoUser() {
-  // Login as demo user
-  saveDataToLocal('loggedInUser', { username: 'demo' });
+  // Login as demo user with a full object
+  const userData = { username: 'demo', lastLogin: Date.now() };
+  localStorage.setItem('loggedInUser', JSON.stringify(userData)); // Use direct localStorage
   updateUserInfo({ nickname: 'demo' });
   
   // Show success message
@@ -643,6 +636,66 @@ async function addPlanToUserData(country, city, year) {
     console.error("addPlanToUserData失败:", err);
     throw err;
   }
+}
+
+/**
+ * Add back to top button on the left side
+ */
+function addBackToTopButton() {
+  // Create button element
+  const backToTopBtn = document.createElement('div');
+  backToTopBtn.className = 'back-to-top-left';
+  backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  document.body.appendChild(backToTopBtn);
+  
+  // Add styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .back-to-top-left {
+      position: fixed;
+      left: 20px;
+      bottom: 80px;
+      width: 48px;
+      height: 48px;
+      background-color: #0a9396;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 80;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .back-to-top-left.visible {
+      opacity: 1;
+    }
+    
+    .back-to-top-left:hover {
+      background-color: #008080;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Show/hide based on scroll position
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 200) {
+      backToTopBtn.classList.add('visible');
+    } else {
+      backToTopBtn.classList.remove('visible');
+    }
+  });
+  
+  // Scroll to top when clicked
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
 }
 
 /**
