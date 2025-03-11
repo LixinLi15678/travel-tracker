@@ -292,20 +292,9 @@
         <span class="close-modal" id="visitListCloseBtn">&times;</span>
         <h2>访问列表</h2>
     
-        <!-- 排序下拉，可选"访问顺序""国家""城市" -->
-        <div style="margin-bottom:1rem;">
-          <label for="visitSortSelect">排序方式：</label>
-          <select id="visitSortSelect">
-            <option value="time">按访问顺序</option>
-            <option value="country">按国家名</option>
-            <option value="city">按城市名</option>
-          </select>
-        </div>
-    
-        <!-- 在这里渲染详细的访问数据 -->
         <div id="visitListDetail"></div>
       </div>
-    </div>    
+    </div>
 
     <!-- 旅行计划 -->
     <section id="travel-planner-section" class="travel-planner-section">
@@ -851,16 +840,24 @@
   <script>
     // 确保Demo登录提示一开始就显示
     document.addEventListener('DOMContentLoaded', function() {
-      // 检查是否已登录
-      const savedUser = localStorage.getItem('loggedInUser');
-      if (!savedUser) {
-        // 延迟一点显示提示，确保页面已完全加载
-        setTimeout(function() {
-          if (typeof showDemoLoginOption === 'function') {
-            showDemoLoginOption();
+      console.log("检查是否需要显示登录提示");
+      // 立即触发一次登录提示检查
+      setTimeout(function() {
+        const savedUser = localStorage.getItem('loggedInUser');
+        if (!savedUser || savedUser === "null" || savedUser === "undefined") {
+          console.log("未检测到登录，显示Demo登录提示");
+          if (typeof window.showDemoLoginOption === 'function') {
+            window.showDemoLoginOption();
+          } else {
+            console.error("showDemoLoginOption 函数未定义");
+            // 尝试直接登录为demo用户
+            localStorage.setItem('loggedInUser', JSON.stringify({ username: 'demo' }));
+            location.reload();
           }
-        }, 500);
-      }
+        } else {
+          console.log("用户已登录，不显示Demo登录提示");
+        }
+      }, 300);
     });
   </script>
   <!-- Loading indicator -->

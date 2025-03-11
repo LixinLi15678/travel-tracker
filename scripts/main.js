@@ -3,7 +3,7 @@
  * Main application logic for Travel Tracker
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
   console.log("旅行足迹 WebApp 已加载");
 
   // 立即更新登录状态并检查是否显示demo登录选项
@@ -352,8 +352,12 @@ function updateLoginState() {
   if (savedUser && savedUser.username) {
     loadAllUserData();
   } else {
+    console.log("用户未登录，显示Demo登录选项");
     // 直接显示demo登录选项，无需检查sessionStorage
-    showDemoLoginOption();
+    // 确保提示能够立即显示
+    setTimeout(() => {
+      showDemoLoginOption();
+    }, 100);
   }
 }
 
@@ -361,9 +365,11 @@ function updateLoginState() {
  * Enhanced showDemoLoginOption that ensures the demo login prompt is displayed
  */
 function showDemoLoginOption() {
+  console.log("执行 showDemoLoginOption 函数");
   // Skip if user is already logged in
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
+    console.log("用户已登录，不显示登录提示");
     return;
   }
   
@@ -372,6 +378,8 @@ function showDemoLoginOption() {
   if (existingPrompt) {
     document.body.removeChild(existingPrompt);
   }
+  
+  console.log("创建登录提示界面");
 
   // Create the demo login prompt
   const demoPrompt = document.createElement('div');

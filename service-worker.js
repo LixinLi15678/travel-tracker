@@ -68,12 +68,17 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve from cache or network
 self.addEventListener('fetch', event => {
+  // Skip non-HTTP(S) requests
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   // Skip for API requests - we want fresh data
   if (event.request.url.includes('/api/')) {
     return;
   }
   
-  // Skip for external resources
+  // Skip for external resources not in our static assets list
   if (!event.request.url.startsWith(self.location.origin) && 
       !STATIC_ASSETS.some(asset => event.request.url.includes(asset))) {
     return;
@@ -98,10 +103,17 @@ self.addEventListener('fetch', event => {
             // Clone response to cache it
             const responseToCache = response.clone();
             
-            caches.open(CACHE_NAME)
-              .then(cache => {
-                cache.put(event.request, responseToCache);
-              });
+            // Try to cache the response if it's a valid URL
+            if (response.url.startsWith('http')) {
+              caches.open(CACHE_NAME)
+                .then(cache => {
+                  try {
+                    cache.put(event.request, responseToCache);
+                  } catch (error) {
+                    console.warn('Failed to cache item:', error);
+                  }
+                });
+            }
             
             return response;
           })

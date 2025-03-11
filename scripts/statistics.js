@@ -175,26 +175,43 @@ async function updateStatistics() {
       }
     }
     
-    // Update DOM
-    document.getElementById('totalCountriesCount').textContent = visitedCountriesCount;
-    document.getElementById('totalCitiesCount').textContent = visitedCitiesCount;
+    // Update DOM with proper error handling
+    const totalCountriesCountEl = document.getElementById('totalCountriesCount');
+    const totalCitiesCountEl = document.getElementById('totalCitiesCount');
+    const plannedLocationsCountEl = document.getElementById('plannedLocationsCount');
+    
+    if (totalCountriesCountEl) totalCountriesCountEl.textContent = visitedCountriesCount;
+    if (totalCitiesCountEl) totalCitiesCountEl.textContent = visitedCitiesCount;
     
     // Update planned locations count
-    let plannedCount = (userData.travelPlans || []).length;
+    let plannedCount = Array.isArray(userData.travelPlans) ? userData.travelPlans.length : 0;
     
     // If no travel plans found in userData, check locations
     if (plannedCount === 0) {
       plannedCount = userLocations.filter(loc => loc.type === 'plan').length;
     }
     
-    document.getElementById('plannedLocationsCount').textContent = plannedCount;
+    if (plannedLocationsCountEl) plannedLocationsCountEl.textContent = plannedCount;
     
     // Calculate total distance
     calculateTotalDistance(userLocations);
     
-    // Create charts
-    createYearlyStatsChart(yearlyStats);
-    createContinentCoverageChart(continentData);
+    // Create charts with error handling
+    try {
+      createYearlyStatsChart(yearlyStats);
+    } catch (err) {
+      console.error("Error creating yearly stats chart:", err);
+      // Create empty chart as fallback
+      createYearlyStatsChart({});
+    }
+    
+    try {
+      createContinentCoverageChart(continentData);
+    } catch (err) {
+      console.error("Error creating continent coverage chart:", err);
+      // Create empty chart as fallback
+      createContinentCoverageChart({});
+    }
     
   } catch (err) {
     console.error("Error updating statistics:", err);
@@ -275,16 +292,23 @@ function toRadians(degrees) {
  * Create yearly statistics chart
  */
 function createYearlyStatsChart(yearlyStats) {
-  const ctx = document.getElementById('yearlyStatsChart').getContext('2d');
+  const ctx = document.getElementById('yearlyStatsChart');
+  if (!ctx || !ctx.getContext) {
+    console.error("Cannot find yearlyStatsChart canvas element or getContext is not available");
+    return;
+  }
   
-  // If there's an existing chart, destroy it
-  if (window.yearlyStatsChart) {
+  const context = ctx.getContext('2d');
+  
+  // If there's an existing chart, destroy it properly
+  if (window.yearlyStatsChart instanceof Chart) {
     window.yearlyStatsChart.destroy();
+    window.yearlyStatsChart = null;
   }
   
   if (!yearlyStats || Object.keys(yearlyStats).length === 0) {
     // Create empty chart
-    window.yearlyStatsChart = new Chart(ctx, {
+    window.yearlyStatsChart = new Chart(context, {
       type: 'bar',
       data: {
         labels: [],
@@ -316,7 +340,7 @@ function createYearlyStatsChart(yearlyStats) {
   const cityCounts = years.map(year => yearlyStats[year]);
   
   // Create chart
-  window.yearlyStatsChart = new Chart(ctx, {
+  window.yearlyStatsChart = new Chart(context, {
     type: 'bar',
     data: {
       labels: years,
@@ -346,11 +370,18 @@ function createYearlyStatsChart(yearlyStats) {
  * Create continent coverage chart
  */
 function createContinentCoverageChart(continentData) {
-  const ctx = document.getElementById('continentCoverageChart').getContext('2d');
+  const ctx = document.getElementById('continentCoverageChart');
+  if (!ctx || !ctx.getContext) {
+    console.error("Cannot find continentCoverageChart canvas element or getContext is not available");
+    return;
+  }
   
-  // If there's an existing chart, destroy it
-  if (window.continentCoverageChart) {
+  const context = ctx.getContext('2d');
+  
+  // If there's an existing chart, destroy it properly
+  if (window.continentCoverageChart instanceof Chart) {
     window.continentCoverageChart.destroy();
+    window.continentCoverageChart = null;
   }
   
   if (!continentData || Object.values(continentData).every(v => v === 0)) {

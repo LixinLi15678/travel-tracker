@@ -41,6 +41,10 @@ async function fetchWithErrorHandling(url, options = {}) {
  * @param {number} duration - Duration in milliseconds
  */
 function showNotification(message, type = 'info', duration = 3000) {
+  // Ensure no conflicts with other showNotification implementations
+  if (window.showNotification) {
+    console.warn('window.showNotification is already defined. This may cause conflicts.');
+  }
   // Check if notification container exists, if not create it
   let container = document.getElementById('notification-container');
   if (!container) {
