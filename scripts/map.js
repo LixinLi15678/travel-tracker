@@ -1,34 +1,38 @@
 /**
  * map.js
- * 实现地图也支持按年份过滤，只加载匹配 year 的地点。
- * 若 filterYear=0，就加载全部。
+ * 1) 支持按用户名和年份过滤 Marker (若 filterYear=0 => 全部)
+ * 2) 支持画线: drawVisitedLine(coordsArray, color, autoFit, weight)
+ * 3) 支持清除线: clearVisitedLines()
  */
 
 let map;
 
-// 用来管理 Marker，方便清除旧的
+// 用来管理 Marker，方便清除旧的 Marker
 let markerGroup = null;
+
+// 全局存放折线(若使用画线功能)
+window.drawnPolylines = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   initializeMap();
 });
 
+/**
+ * 初始化 Leaflet 地图
+ */
 function initializeMap() {
   try {
-    // 初始化地图
     map = L.map('map').setView([30, 0], 2);
 
-    // 使用OpenStreetMap的瓦片
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // 默认加载所有地点
+    // 默认加载当前用户全部地点
     loadLocationsAndMark(0);
 
     // 可选：添加图例
     addMapLegend();
-
   } catch (error) {
     console.error("地图初始化失败：", error);
   }
@@ -36,10 +40,11 @@ function initializeMap() {
 
 /**
  * 根据 filterYear 过滤地点，只对匹配到的地点生成 Marker
- * 如果 filterYear=0 => 显示全部
+ * 若 filterYear=0 => 显示全部
+ * 且只加载当前登录用户(username)
  */
 function loadLocationsAndMark(filterYear = 0) {
-  // 先清除旧 markers
+  // 清除旧 markers
   if (markerGroup) {
     map.removeLayer(markerGroup);
     markerGroup = null;
@@ -53,18 +58,19 @@ function loadLocationsAndMark(filterYear = 0) {
   fetch('data/locations.json')
     .then(res => res.json())
     .then(locData => {
+      // 逐条判断
       locData.forEach(loc => {
-        // ★ 如果 loc.username 跟当前用户不匹配，就不渲染
+        // 若没有登录或 loc.username != 当前用户 => 不渲染
         if (!currentUsername || loc.username !== currentUsername) {
-          return; 
+          return;
         }
 
-        // 如果 filterYear !=0，要匹配 loc.year
+        // 若 filterYear !=0 => 只渲染 loc.year === filterYear
         if (filterYear !== 0 && parseInt(loc.year) !== filterYear) {
           return;
         }
 
-        // ★ 匹配到后，再创建 Marker
+        // 区分已访问 vs 计划 => Marker 图标
         let markerIcon;
         if (loc.type === 'visited') {
           markerIcon = L.icon({
@@ -78,7 +84,9 @@ function loadLocationsAndMark(filterYear = 0) {
           });
         }
 
+        // 创建 Marker
         const marker = L.marker([loc.latitude, loc.longitude], { icon: markerIcon });
+        // 绑定 Popup
         marker.bindPopup(`
           <h3>${loc.cityZH}（${loc.city}）</h3>
           <p>国家：${loc.countryZH}（${loc.country}）</p>
@@ -86,6 +94,7 @@ function loadLocationsAndMark(filterYear = 0) {
           <p>年份：${loc.year || '无'}</p>
           <p>类型：${loc.type || '无'}</p>
         `);
+
         marker.addTo(markerGroup);
       });
     })
@@ -94,9 +103,8 @@ function loadLocationsAndMark(filterYear = 0) {
     });
 }
 
-
 /**
- * 添加图例(可自定义)
+ * 在地图上添加图例(可自定义)
  */
 function addMapLegend() {
   const legendControl = L.control({ position: 'bottomleft' });
@@ -104,12 +112,10 @@ function addMapLegend() {
     const div = L.DomUtil.create('div', 'map-legend');
     div.innerHTML = `
       <h3 class="legend-title">地图图例</h3>
-
       <div class="legend-item">
         <img src="assets/markers/marker-visited.png" alt="已访问" class="legend-icon">
         <span>已访问</span>
       </div>
-
       <div class="legend-item">
         <img src="assets/markers/marker-plan.png" alt="计划" class="legend-icon">
         <span>计划</span>
@@ -121,11 +127,12 @@ function addMapLegend() {
 }
 
 /**
- * 让 main.js 能直接调用
+ * 在 main.js 中可以直接调用 loadLocationsAndMark(...)
  */
 window.loadLocationsAndMark = loadLocationsAndMark;
 
 /**
+ * centerMap(lat, lng, zoom)
  * 移动 & 缩放到指定坐标
  */
 function centerMap(lat, lng, zoom = 8) {
@@ -135,44 +142,50 @@ function centerMap(lat, lng, zoom = 8) {
 window.centerMap = centerMap;
 
 /**
- * 用于存放折线(若使用画线功能)
- */
-window.drawnPolylines = [];
-
-/**
- * 画一条线路
+ * 画线: drawVisitedLine
+ * coordsArray: [{ lat, lng }, { lat, lng }, ...]
+ * color: 线颜色(默认红)
+ * autoFit: 是否自动 fitBounds
+ * weight: 线宽(默认3)
  */
 function drawVisitedLine(coordsArray, color = '#ff0000', autoFit = true, weight = 3) {
   if (!map || !coordsArray || coordsArray.length < 2) return;
 
-  const latlngs = coordsArray.map(c => [c.lat, c.lng]);
+  // 做个 debug
+  console.log("drawVisitedLine => coords:", coordsArray, "color:", color, "weight:", weight);
+
+  const latlngs = coordsArray.map(c => [parseFloat(c.lat), parseFloat(c.lng)]);
   const polyline = L.polyline(latlngs, {
     color: color,
     weight: weight,
     opacity: 0.8
   }).addTo(map);
 
-  // 存入全局
+  // push到全局数组
   window.drawnPolylines.push(polyline);
 
-  // 自动适应
+  // 自动视野
   if (autoFit) {
     map.fitBounds(polyline.getBounds());
   }
 }
-window.drawVisitedLine = drawVisitedLine;
 
 /**
- * 清除已绘制线路
+ * 清除线: clearVisitedLines
+ * 将 drawnPolylines 里的所有 polyline 从地图移除
  */
 function clearVisitedLines() {
   if (!map || !window.drawnPolylines) return;
 
-  // 逐个从地图移除
+  console.log("clearVisitedLines => 正在移除折线数量:", window.drawnPolylines.length);
   window.drawnPolylines.forEach(pl => {
     map.removeLayer(pl);
   });
-  // 清空数组
+  // 清空
   window.drawnPolylines = [];
+  console.log("clearVisitedLines => 已清空 drawnPolylines");
 }
+
+// 暴露给 main.js
+window.drawVisitedLine = drawVisitedLine;
 window.clearVisitedLines = clearVisitedLines;

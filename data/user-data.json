@@ -1,2 +1,76 @@
 {
+  "users": {
+    "demo": {
+      "visitedCountries": [
+        {
+          "country": "China",
+          "countryZH": "中国",
+          "year": 2023,
+          "cities": [
+            {
+              "city": "Beijing",
+              "cityZH": "北京"
+            },
+            {
+              "city": "Shanghai",
+              "cityZH": "上海"
+            }
+          ]
+        },
+        {
+          "country": "Japan",
+          "countryZH": "日本",
+          "year": 2022,
+          "cities": [
+            {
+              "city": "Tokyo",
+              "cityZH": "东京"
+            },
+            {
+              "city": "Kyoto",
+              "cityZH": "京都"
+            }
+          ]
+        }
+      ],
+      "travelPlans": [
+        {
+          "country": "France",
+          "city": "Paris",
+          "year": 2025
+        },
+        {
+          "country": "Italy",
+          "city": "Rome",
+          "year": 2024
+        }
+      ],
+      "visitedCities": []
+    },
+    "Leo": {
+      "visitedCities": [
+        {
+          "year": 2024,
+          "country": "中国",
+          "city": "北京市, 中国"
+        },
+        {
+          "year": 2024,
+          "country": "美国",
+          "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國"
+        },
+        {
+          "year": 2025,
+          "country": "加拿大",
+          "city": "Toronto, Golden Horseshoe, 安大略, 加拿大"
+        },
+        {
+          "year": 2025,
+          "country": "日本",
+          "city": "东京都/東京都, 日本"
+        }
+      ],
+      "travelPlans": []
+    }
+  }
 }

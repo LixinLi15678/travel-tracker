@@ -33,8 +33,12 @@
     <ul class="menu-list">
       <li><a href="#hero-section">首页</a></li>
       <li><a href="#map-section">地图</a></li>
+      <li><a href="#statistics-section">统计</a></li>
       <li><a href="#visited-section">已访问</a></li>
       <li><a href="#travel-planner-section">旅行计划</a></li>
+      <li><a href="#gallery-section">照片库</a></li>
+      <li><a href="#diary-section">旅行日记</a></li>
+      <li><a href="#weather-section">目的地天气</a></li>
     </ul>
     <div class="footer-section">
       <p>© 2024 Travel Tracker</p>
@@ -51,8 +55,12 @@
       <ul>
         <li><a href="#hero-section">首页</a></li>
         <li><a href="#map-section">地图</a></li>
+        <li><a href="#statistics-section">统计</a></li>
         <li><a href="#visited-section">已访问</a></li>
         <li><a href="#travel-planner-section">旅行计划</a></li>
+        <li><a href="#gallery-section">照片库</a></li>
+        <li><a href="#diary-section">日记</a></li>
+        <li><a href="#weather-section">天气</a></li>
       </ul>
     </nav>
 
@@ -111,6 +119,66 @@
       <div id="map"></div>
     </section>
 
+    <!-- 统计区域 -->
+    <section id="statistics-section" class="statistics-section">
+      <h2>旅行统计</h2>
+      
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-globe-americas"></i>
+          </div>
+          <div class="stats-content">
+            <h3>已访问国家</h3>
+            <p class="stats-number" id="totalCountriesCount">0</p>
+          </div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-city"></i>
+          </div>
+          <div class="stats-content">
+            <h3>已访问城市</h3>
+            <p class="stats-number" id="totalCitiesCount">0</p>
+          </div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <div class="stats-content">
+            <h3>计划中的地点</h3>
+            <p class="stats-number" id="plannedLocationsCount">0</p>
+          </div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-plane"></i>
+          </div>
+          <div class="stats-content">
+            <h3>旅行覆盖距离</h3>
+            <p class="stats-number" id="totalDistance">0</p>
+            <p class="stats-unit">公里</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stats-charts">
+        <div class="stats-chart-container">
+          <h3>年度旅行统计</h3>
+          <canvas id="yearlyStatsChart"></canvas>
+        </div>
+        
+        <div class="stats-chart-container">
+          <h3>大洲覆盖率</h3>
+          <canvas id="continentCoverageChart"></canvas>
+        </div>
+      </div>
+    </section>
+
     <!-- 访问记录 -->
     <section id="visited-section" class="visited-section">
       <h2>我的旅行记录</h2>
@@ -144,7 +212,7 @@
         <span class="close-modal" id="visitListCloseBtn">&times;</span>
         <h2>访问列表</h2>
     
-        <!-- 排序下拉，可选“访问顺序”“国家”“城市” -->
+        <!-- 排序下拉，可选"访问顺序""国家""城市" -->
         <div style="margin-bottom:1rem;">
           <label for="visitSortSelect">排序方式：</label>
           <select id="visitSortSelect">
@@ -212,6 +280,269 @@
       </form>
       <ul id="travelPlanList"></ul>
     </section>
+
+    <!-- 照片库 -->
+    <section id="gallery-section" class="gallery-section">
+      <h2>旅行照片库</h2>
+      
+      <div class="gallery-filters">
+        <div class="filter-group">
+          <label for="galleryFilterYear">年份筛选:</label>
+          <select id="galleryFilterYear">
+            <option value="all">全部年份</option>
+            <!-- Years will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="galleryFilterCountry">国家筛选:</label>
+          <select id="galleryFilterCountry">
+            <option value="all">全部国家</option>
+            <!-- Countries will be populated by JavaScript -->
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="galleryFilterCity">城市筛选:</label>
+          <select id="galleryFilterCity">
+            <option value="all">全部城市</option>
+            <!-- Cities will be populated by JavaScript -->
+          </select>
+        </div>
+      </div>
+      
+      <div class="gallery-grid" id="photoGallery">
+        <!-- Photos will be populated by JavaScript -->
+        <div class="gallery-empty-state">
+          <i class="fas fa-images"></i>
+          <p>还没有照片，点击"上传照片"按钮添加你的旅行照片</p>
+        </div>
+      </div>
+      
+      <div class="gallery-actions">
+        <button id="uploadPhotoBtn" class="btn-primary">
+          <i class="fas fa-upload"></i> 上传照片
+        </button>
+      </div>
+    </section>
+
+    <!-- Photo Upload Modal -->
+    <div class="modal" id="photoUploadModal">
+      <div class="modal-content">
+        <span class="close-modal" id="photoUploadCloseBtn">&times;</span>
+        <h2>上传旅行照片</h2>
+        <form id="photoUploadForm">
+          <div class="form-group">
+            <label for="photoYear">年份:</label>
+            <select id="photoYear" required>
+              <!-- Years will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoCountry">国家:</label>
+            <select id="photoCountry" required>
+              <!-- Countries will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoCity">城市:</label>
+            <select id="photoCity" required>
+              <!-- Cities will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoTitle">标题:</label>
+            <input type="text" id="photoTitle" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoDescription">描述:</label>
+            <textarea id="photoDescription" rows="3"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="photoFile">照片:</label>
+            <input type="file" id="photoFile" accept="image/*" required>
+            <div class="photo-preview-container">
+              <img id="photoPreview" style="display: none; max-width: 100%; max-height: 200px;">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary">上传照片</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Photo View Modal -->
+    <div class="modal" id="photoViewModal">
+      <div class="modal-content photo-view-content">
+        <span class="close-modal" id="photoViewCloseBtn">&times;</span>
+        <div class="photo-view-container">
+          <img id="photoViewImage" src="" alt="">
+          <div class="photo-view-info">
+            <h3 id="photoViewTitle"></h3>
+            <p id="photoViewLocation"></p>
+            <p id="photoViewDate"></p>
+            <p id="photoViewDescription"></p>
+          </div>
+        </div>
+        <div class="photo-view-actions">
+          <button id="prevPhotoBtn" class="btn-circle"><i class="fas fa-chevron-left"></i></button>
+          <button id="deletePhotoBtn" class="btn-danger"><i class="fas fa-trash"></i> 删除</button>
+          <button id="nextPhotoBtn" class="btn-circle"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 旅行日记 -->
+    <section id="diary-section" class="diary-section">
+      <h2>旅行日记</h2>
+      
+      <div class="diary-container">
+        <div class="diary-sidebar">
+          <div class="diary-search">
+            <input type="text" id="diarySearchInput" placeholder="搜索日记...">
+          </div>
+          
+          <div class="diary-filters">
+            <select id="diaryYearFilter">
+              <option value="all">全部年份</option>
+              <!-- Years will be populated by JavaScript -->
+            </select>
+            
+            <select id="diaryCountryFilter">
+              <option value="all">全部国家</option>
+              <!-- Countries will be populated by JavaScript -->
+            </select>
+          </div>
+          
+          <div class="diary-list-header">
+            <h3>我的日记</h3>
+            <button id="newDiaryBtn" class="btn-small">
+              <i class="fas fa-plus"></i> 写新日记
+            </button>
+          </div>
+          
+          <ul id="diaryList" class="diary-list">
+            <!-- Diary entries will be populated by JavaScript -->
+            <li class="diary-empty">暂无日记</li>
+          </ul>
+        </div>
+        
+        <div class="diary-content">
+          <div class="diary-view" id="diaryView">
+            <!-- Selected diary content will be shown here -->
+            <div class="diary-placeholder">
+              <i class="fas fa-book-open"></i>
+              <p>选择一篇日记查看，或写一篇新日记记录你的旅行回忆</p>
+            </div>
+          </div>
+          
+          <div class="diary-editor" id="diaryEditor" style="display: none;">
+            <div class="diary-editor-header">
+              <button id="cancelDiaryBtn" class="btn-text">取消</button>
+              <h3 id="diaryEditorTitle">写新日记</h3>
+              <button id="saveDiaryBtn" class="btn-primary btn-small">保存</button>
+            </div>
+            
+            <form id="diaryForm">
+              <div class="form-group">
+                <label for="diaryTitle">标题:</label>
+                <input type="text" id="diaryTitle" required>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="diaryYear">年份:</label>
+                  <select id="diaryYear" required>
+                    <!-- Years will be populated by JavaScript -->
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="diaryCountry">国家:</label>
+                  <select id="diaryCountry" required>
+                    <!-- Countries will be populated by JavaScript -->
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="diaryCity">城市:</label>
+                  <select id="diaryCity" required>
+                    <!-- Cities will be populated by JavaScript -->
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="diaryContent">内容:</label>
+                <textarea id="diaryContent" rows="12" required></textarea>
+              </div>
+              
+              <div class="form-group">
+                <label for="diaryMood">心情:</label>
+                <div class="mood-selector">
+                  <input type="radio" id="mood-happy" name="diaryMood" value="happy" checked>
+                  <label for="mood-happy"><i class="fas fa-smile"></i> 开心</label>
+                  
+                  <input type="radio" id="mood-excited" name="diaryMood" value="excited">
+                  <label for="mood-excited"><i class="fas fa-grin-stars"></i> 兴奋</label>
+                  
+                  <input type="radio" id="mood-relaxed" name="diaryMood" value="relaxed">
+                  <label for="mood-relaxed"><i class="fas fa-smile-beam"></i> 放松</label>
+                  
+                  <input type="radio" id="mood-tired" name="diaryMood" value="tired">
+                  <label for="mood-tired"><i class="fas fa-tired"></i> 疲惫</label>
+                  
+                  <input type="radio" id="mood-sad" name="diaryMood" value="sad">
+                  <label for="mood-sad"><i class="fas fa-frown"></i> 难过</label>
+                </div>
+              </div>
+              
+              <input type="hidden" id="diaryId">
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 目的地天气 -->
+    <section id="weather-section" class="weather-section">
+      <h2>目的地天气</h2>
+      
+      <div class="weather-container">
+        <div class="weather-filters">
+          <select id="weatherLocationSelect">
+            <option value="" disabled selected>选择地点</option>
+            <!-- Locations will be populated by JavaScript -->
+          </select>
+          
+          <div class="weather-type-tabs">
+            <button class="weather-tab active" data-type="current">当前天气</button>
+            <button class="weather-tab" data-type="forecast">未来预报</button>
+          </div>
+        </div>
+        
+        <div class="weather-content">
+          <div id="currentWeather" class="weather-card">
+            <div class="weather-card-placeholder">
+              <i class="fas fa-cloud-sun"></i>
+              <p>选择一个地点查看天气</p>
+            </div>
+          </div>
+          
+          <div id="forecastWeather" class="weather-forecast" style="display: none;">
+            <div class="weather-card-placeholder">
+              <i class="fas fa-cloud-sun-rain"></i>
+              <p>选择一个地点查看天气预报</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="app-footer">
@@ -221,12 +552,221 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- 你的脚本 -->
+  <!-- Chart.js for statistics visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+  <!-- 基础脚本 -->
   <script src="scripts/geo.js"></script>
   <script src="scripts/countries.js"></script>
   <script src="scripts/data.js"></script>
+  <script src="scripts/utils.js"></script>
   <script src="scripts/main.js"></script>
   <script src="scripts/map.js"></script>
+  
+  <!-- 新增功能脚本 -->
+  <script src="scripts/mobile-enhancements.js"></script>
+  <script src="scripts/statistics.js"></script>
+  <script src="scripts/gallery.js"></script>
+  <script src="scripts/diary.js"></script>
+  <script src="scripts/weather.js"></script>
 
+  <!-- 初始化应用 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Travel Tracker v2.0 - Enhanced Edition loaded');
+      
+      // Check for critical elements
+      const criticalElements = [
+        { id: 'map', name: 'Map container' },
+        { id: 'sidebar', name: 'Sidebar' },
+        { id: 'authModal', name: 'Auth modal' }
+      ];
+      
+      let missingElements = criticalElements.filter(el => !document.getElementById(el.id));
+      
+      if (missingElements.length > 0) {
+        console.error('Missing critical elements:', missingElements.map(el => el.name).join(', '));
+      }
+      
+      // Initialize components
+      if (typeof initializeMobileEnhancements === 'function') {
+        initializeMobileEnhancements();
+      }
+      
+      // Create empty data files if needed
+      createEmptyDataFiles();
+      
+      // Update auth state UI
+      updateLoginState();
+    });
+    
+    /**
+     * Create empty data files if they don't exist
+     */
+    async function createEmptyDataFiles() {
+      const requiredFiles = [
+        { path: '/api/user-data', data: { users: {} } },
+        { path: '/api/locations', data: [] },
+        { path: '/api/photos', data: [] },
+        { path: '/api/diaries', data: [] }
+      ];
+      
+      for (const file of requiredFiles) {
+        try {
+          const response = await fetch(file.path);
+          if (!response.ok) {
+            console.warn(`Creating empty ${file.path} file`);
+            
+            // Create file
+            await fetch(file.path, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(file.data)
+            });
+          }
+        } catch (err) {
+          console.error(`Error checking/creating ${file.path}:`, err);
+        }
+      }
+    }
+    
+    /**
+     * Update login state UI
+     */
+    function updateLoginState() {
+      const savedUser = loadDataFromLocal('loggedInUser');
+      updateUserInfo(savedUser);
+      
+      // Show demo user option if not logged in
+      if (!savedUser || !savedUser.username) {
+        setTimeout(() => {
+          showDemoLoginOption();
+        }, 1000);
+      }
+    }
+    
+    /**
+     * Show demo login option
+     */
+    function showDemoLoginOption() {
+      // Check if we've already shown the demo option
+      if (localStorage.getItem('demoLoginShown')) {
+        return;
+      }
+      
+      // Create the demo login prompt
+      const demoPrompt = document.createElement('div');
+      demoPrompt.className = 'demo-login-prompt';
+      demoPrompt.innerHTML = `
+        <div class="demo-login-content">
+          <h3>欢迎使用旅行足迹!</h3>
+          <p>你想试用演示账号吗？这样你可以查看所有功能。</p>
+          <div class="demo-login-buttons">
+            <button class="btn-cancel">不用了</button>
+            <button class="btn-primary">使用演示账号</button>
+          </div>
+        </div>
+      `;
+      
+      // Add styles
+      const style = document.createElement('style');
+      style.textContent = `
+        .demo-login-prompt {
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 100;
+          max-width: 300px;
+          animation: slideUp 0.3s ease;
+        }
+        
+        .demo-login-content {
+          padding: 16px;
+        }
+        
+        .demo-login-content h3 {
+          margin-top: 0;
+          margin-bottom: 8px;
+          color: #0a9396;
+        }
+        
+        .demo-login-buttons {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 16px;
+        }
+        
+        @keyframes slideUp {
+          from {
+            transform: translateY(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Add to body
+      document.body.appendChild(demoPrompt);
+      
+      // Add event listeners
+      const cancelBtn = demoPrompt.querySelector('.btn-cancel');
+      const demoBtn = demoPrompt.querySelector('.btn-primary');
+      
+      cancelBtn.addEventListener('click', () => {
+        document.body.removeChild(demoPrompt);
+        localStorage.setItem('demoLoginShown', 'true');
+      });
+      
+      demoBtn.addEventListener('click', () => {
+        // Login as demo user
+        saveDataToLocal('loggedInUser', { username: 'demo' });
+        updateUserInfo({ nickname: 'demo' });
+        
+        // Remove prompt
+        document.body.removeChild(demoPrompt);
+        localStorage.setItem('demoLoginShown', 'true');
+        
+        // Show success message
+        if (typeof showNotification === 'function') {
+          showNotification('已登录为演示账号', 'success');
+        } else {
+          alert('已登录为演示账号');
+        }
+        
+        // Reload data
+        if (typeof loadVisitedList === 'function') loadVisitedList();
+        if (typeof renderTravelPlanList === 'function') renderTravelPlanList();
+        if (typeof loadLocationsAndMark === 'function') loadLocationsAndMark();
+        if (typeof updateStatistics === 'function') updateStatistics();
+        if (typeof loadPhotoGallery === 'function') loadPhotoGallery();
+        if (typeof loadDiaryEntries === 'function') loadDiaryEntries();
+        if (typeof loadWeatherLocations === 'function') loadWeatherLocations();
+      });
+    }
+  </script>
+
+  <!-- Service Worker Registration for Progressive Web App capabilities -->
+  <script>
+    // Register service worker for offline capabilities
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(error => {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      });
+    }
+  </script>
 </body>
 </html>

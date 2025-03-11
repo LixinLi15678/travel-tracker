@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>离线模式 - 旅行足迹</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    
+    .container {
+      padding: 2rem;
+      max-width: 600px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #0a9396;
+      margin-top: 0;
+    }
+    
+    .icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      color: #0a9396;
+    }
+    
+    p {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    
+    button {
+      background-color: #0a9396;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: #0b7a7c;
+    }
+    
+    .note {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    .cached-data {
+      margin-top: 2rem;
+      text-align: left;
+    }
+    
+    .cached-data h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .data-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .data-list li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <i class="fas fa-plane-slash"></i>
+    </div>
+    
+    <h1>您当前处于离线模式</h1>
+    
+    <p>无法连接到互联网。请检查您的网络连接，然后重试。</p>
+    
+    <p>您仍然可以访问已缓存的旅行数据和一些基本功能。</p>
+    
+    <button id="reloadBtn">重新连接</button>
+    
+    <div class="note">
+      <p>提示：您可以在设置中启用"离线模式"，以便在没有网络连接的情况下访问您的旅行数据。</p>
+    </div>
+    
+    <div id="cachedData" class="cached-data" style="display: none;">
+      <h2>可用的离线数据</h2>
+      <ul id="dataList" class="data-list">
+        <!-- Will be populated with JavaScript -->
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    // Check for internet connection
+    function checkConnection() {
+      return window.navigator.onLine;
+    }
+    
+    // Reload page
+    document.getElementById('reloadBtn').addEventListener('click', () => {
+      window.location.reload();
+    });
+    
+    // Check connection status
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+    
+    // Display cached data if available
+    async function showCachedData() {
+      if ('caches' in window) {
+        try {
+          const cache = await caches.open('travel-tracker-cache-v1');
+          const keys = await cache.keys();
+          
+          if (keys.length > 0) {
+            // Group by type
+            const groups = {
+              'user-data': [],
+              'locations': [],
+              'photos': [],
+              'diaries': []
+            };
+            
+            keys.forEach(request => {
+              const url = request.url;
+              
+              if (url.includes('/api/user-data')) {
+                groups['user-data'].push('用户数据');
+              } else if (url.includes('/api/locations')) {
+                groups['locations'].push('地点数据');
+              } else if (url.includes('/api/photos')) {
+                groups['photos'].push('照片数据');
+              } else if (url.includes('/api/diaries')) {
+                groups['diaries'].push('日记数据');
+              }
+            });
+            
+            // Show cached data section
+            document.getElementById('cachedData').style.display = 'block';
+            
+            // Populate list
+            const dataList = document.getElementById('dataList');
+            
+            for (const [type, items] of Object.entries(groups)) {
+              if (items.length > 0) {
+                const li = document.createElement('li');
+                li.textContent = items[0];
+                dataList.appendChild(li);
+              }
+            }
+            
+            if (dataList.children.length === 0) {
+              dataList.innerHTML = '<li>没有可用的离线数据</li>';
+            }
+          }
+        } catch (err) {
+          console.error('Error checking cache:', err);
+        }
+      }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (checkConnection()) {
+        window.location.href = '/';
+      } else {
+        showCachedData();
+      }
+    });
+  </script>
+</body>
+</html>
