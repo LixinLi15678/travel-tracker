@@ -1,50 +1,72 @@
 [
   {
-    "username": "Leo",
-    "country": "中国",
+    "username": "demo",
+    "country": "China",
     "countryZH": "中国",
-    "city": "北京市, 中国",
-    "cityZH": "北京市, 中国",
-    "latitude": 40.190632,
-    "longitude": 116.412144,
-    "type": "visited",
-    "year": 2024
-  },
-  {
-    "username": "Leo",
-    "country": "中国",
-    "countryZH": "中国",
-    "city": "北京市, 中国",
-    "cityZH": "北京市, 中国",
-    "latitude": 40.190632,
-    "longitude": 116.412144,
-    "type": "visited",
-    "year": 2024
-  },
-  {
-    "username": "Leo",
-    "country": "美国",
-    "countryZH": "美国",
-    "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
-    "cityZH": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
-    "latitude": 40.7127281,
-    "longitude": -74.0060152,
-    "type": "visited",
-    "year": 2024
-  },
-  {
-    "username": "Leo",
-    "country": "荷兰",
-    "countryZH": "荷兰",
-    "city": "Apeldoorn, Gelderland, 荷兰 / 荷蘭",
-    "cityZH": "Apeldoorn, Gelderland, 荷兰 / 荷蘭",
-    "latitude": 52.2156457,
-    "longitude": 5.9639485,
+    "city": "Beijing",
+    "cityZH": "北京",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
     "type": "visited",
     "year": 2023
   },
   {
-    "username": "Teresa",
+    "username": "demo",
+    "country": "China",
+    "countryZH": "中国",
+    "city": "Shanghai",
+    "cityZH": "上海",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "type": "visited",
+    "year": 2023
+  },
+  {
+    "username": "demo",
+    "country": "Japan",
+    "countryZH": "日本",
+    "city": "Tokyo",
+    "cityZH": "东京",
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "type": "visited",
+    "year": 2022
+  },
+  {
+    "username": "demo",
+    "country": "Japan",
+    "countryZH": "日本",
+    "city": "Kyoto",
+    "cityZH": "京都",
+    "latitude": 35.0116,
+    "longitude": 135.7681,
+    "type": "visited",
+    "year": 2022
+  },
+  {
+    "username": "demo",
+    "country": "France",
+    "countryZH": "法国",
+    "city": "Paris",
+    "cityZH": "巴黎",
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "type": "plan",
+    "year": 2025
+  },
+  {
+    "username": "demo",
+    "country": "Italy",
+    "countryZH": "意大利",
+    "city": "Rome",
+    "cityZH": "罗马",
+    "latitude": 41.9028,
+    "longitude": 12.4964,
+    "type": "plan",
+    "year": 2024
+  },
+  {
+    "username": "Leo",
     "country": "中国",
     "countryZH": "中国",
     "city": "北京市, 中国",
@@ -52,10 +74,10 @@
     "latitude": 40.190632,
     "longitude": 116.412144,
     "type": "visited",
-    "year": 2025
+    "year": 2024
   },
   {
-    "username": "Teresa",
+    "username": "Leo",
     "country": "美国",
     "countryZH": "美国",
     "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
@@ -63,7 +85,7 @@
     "latitude": 40.7127281,
     "longitude": -74.0060152,
     "type": "visited",
-    "year": 2025
+    "year": 2024
   },
   {
     "username": "Leo",
@@ -73,6 +95,17 @@
     "cityZH": "Toronto, Golden Horseshoe, 安大略, 加拿大",
     "latitude": 43.6534817,
     "longitude": -79.3839347,
+    "type": "visited",
+    "year": 2025
+  },
+  {
+    "username": "Leo",
+    "country": "日本",
+    "countryZH": "日本",
+    "city": "东京都/東京都, 日本",
+    "cityZH": "东京都/東京都, 日本",
+    "latitude": 35.6768601,
+    "longitude": 139.7638947,
     "type": "visited",
     "year": 2025
   }

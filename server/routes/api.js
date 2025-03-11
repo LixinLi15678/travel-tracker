@@ -276,3 +276,436 @@ router.post('/user-data/markVisited', (req, res) => {
     });
   });
 });
+
+/**
+ * GET /api/diaries
+ * Get all diaries from diaries.json
+ */
+router.get('/diaries', (req, res) => {
+  const dataPath = path.join(__dirname, '../../data/diaries.json');
+  
+  // Check if file exists
+  if (!fs.existsSync(dataPath)) {
+    // Create empty diaries.json
+    fs.writeFileSync(dataPath, '[]', 'utf8');
+    return res.json([]);
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 diaries.json 失败：', err);
+      return res.status(500).json({ error: '无法读取日记数据' });
+    }
+    
+    try {
+      const diaries = JSON.parse(fileData);
+      res.json(diaries);
+    } catch (parseErr) {
+      console.error('解析 diaries.json 失败：', parseErr);
+      res.status(500).json({ error: '数据解析失败' });
+    }
+  });
+});
+
+/**
+ * GET /api/diaries/:id
+ * Get a specific diary by ID
+ */
+router.get('/diaries/:id', (req, res) => {
+  const diaryId = req.params.id;
+  const dataPath = path.join(__dirname, '../../data/diaries.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return res.json({ 
+      success: false, 
+      message: '日记不存在' 
+    });
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 diaries.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '无法读取日记数据' 
+      });
+    }
+    
+    try {
+      const diaries = JSON.parse(fileData);
+      const diary = diaries.find(d => d.id === diaryId);
+      
+      if (!diary) {
+        return res.json({ 
+          success: false, 
+          message: '日记不存在' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        diary: diary 
+      });
+    } catch (parseErr) {
+      console.error('解析 diaries.json 失败：', parseErr);
+      res.status(500).json({ 
+        success: false, 
+        message: '数据解析失败' 
+      });
+    }
+  });
+});
+
+/**
+ * POST /api/diaries
+ * Add or update a diary entry
+ */
+router.post('/diaries', (req, res) => {
+  const diaryData = req.body;
+  const dataPath = path.join(__dirname, '../../data/diaries.json');
+  
+  // Check if required fields are present
+  if (!diaryData.username || !diaryData.title || !diaryData.content) {
+    return res.status(400).json({ 
+      success: false, 
+      message: '缺少必要字段' 
+    });
+  }
+  
+  // Check if file exists
+  let diaries = [];
+  if (fs.existsSync(dataPath)) {
+    try {
+      const fileData = fs.readFileSync(dataPath, 'utf8');
+      diaries = JSON.parse(fileData);
+    } catch (err) {
+      console.error('读取 diaries.json 失败：', err);
+    }
+  }
+  
+  // Check if updating existing diary
+  const existingIndex = diaries.findIndex(d => d.id === diaryData.id);
+  if (existingIndex !== -1) {
+    // Update existing diary
+    diaries[existingIndex] = diaryData;
+  } else {
+    // Add new diary
+    // Ensure ID is set
+    if (!diaryData.id) {
+      diaryData.id = Date.now().toString();
+    }
+    
+    // Ensure timestamp is set
+    if (!diaryData.timestamp) {
+      diaryData.timestamp = Date.now();
+    }
+    
+    diaries.push(diaryData);
+  }
+  
+  // Write back to file
+  fs.writeFile(dataPath, JSON.stringify(diaries, null, 2), 'utf8', (err) => {
+    if (err) {
+      console.error('写入 diaries.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '保存日记失败' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: existingIndex !== -1 ? '日记已更新' : '日记已保存', 
+      diary: diaryData 
+    });
+  });
+});
+
+/**
+ * DELETE /api/diaries/:id
+ * Delete a diary by ID
+ */
+router.delete('/diaries/:id', (req, res) => {
+  const diaryId = req.params.id;
+  const dataPath = path.join(__dirname, '../../data/diaries.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return res.status(404).json({ 
+      success: false, 
+      message: '日记不存在' 
+    });
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 diaries.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '无法读取日记数据' 
+      });
+    }
+    
+    try {
+      let diaries = JSON.parse(fileData);
+      const initialLength = diaries.length;
+      
+      // Filter out the diary to delete
+      diaries = diaries.filter(d => d.id !== diaryId);
+      
+      if (diaries.length === initialLength) {
+        return res.json({ 
+          success: false, 
+          message: '日记不存在' 
+        });
+      }
+      
+      // Write back to file
+      fs.writeFile(dataPath, JSON.stringify(diaries, null, 2), 'utf8', (writeErr) => {
+        if (writeErr) {
+          console.error('写入 diaries.json 失败：', writeErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: '删除日记失败' 
+          });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: '日记已删除' 
+        });
+      });
+    } catch (parseErr) {
+      console.error('解析 diaries.json 失败：', parseErr);
+      res.status(500).json({ 
+        success: false, 
+        message: '数据解析失败' 
+      });
+    }
+  });
+});
+
+/**
+ * Create an empty diaries.json file if it doesn't exist
+ */
+(function createDiariesFile() {
+  const dataPath = path.join(__dirname, '../../data/diaries.json');
+  if (!fs.existsSync(dataPath)) {
+    try {
+      fs.writeFileSync(dataPath, '[]', 'utf8');
+      console.log('Created empty diaries.json file');
+    } catch (err) {
+      console.error('Error creating diaries.json:', err);
+    }
+  }
+})();
+
+/**
+ * GET /api/photos
+ * Get all photos from photos.json
+ */
+router.get('/photos', (req, res) => {
+  const dataPath = path.join(__dirname, '../../data/photos.json');
+  
+  // Check if file exists
+  if (!fs.existsSync(dataPath)) {
+    // Create empty photos.json
+    fs.writeFileSync(dataPath, '[]', 'utf8');
+    return res.json([]);
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 photos.json 失败：', err);
+      return res.status(500).json({ error: '无法读取照片数据' });
+    }
+    
+    try {
+      const photos = JSON.parse(fileData);
+      res.json(photos);
+    } catch (parseErr) {
+      console.error('解析 photos.json 失败：', parseErr);
+      res.status(500).json({ error: '数据解析失败' });
+    }
+  });
+});
+
+/**
+ * POST /api/photos
+ * Add a new photo to photos.json
+ */
+router.post('/photos', (req, res) => {
+  const photoData = req.body;
+  const dataPath = path.join(__dirname, '../../data/photos.json');
+  
+  // Check if required fields are present
+  if (!photoData.username || !photoData.title || !photoData.url) {
+    return res.status(400).json({ 
+      success: false, 
+      message: '缺少必要字段' 
+    });
+  }
+  
+  // Check if file exists
+  let photos = [];
+  if (fs.existsSync(dataPath)) {
+    try {
+      const fileData = fs.readFileSync(dataPath, 'utf8');
+      photos = JSON.parse(fileData);
+    } catch (err) {
+      console.error('读取 photos.json 失败：', err);
+    }
+  }
+  
+  // Add ID and timestamp
+  photoData.id = Date.now().toString();
+  if (!photoData.timestamp) {
+    photoData.timestamp = Date.now();
+  }
+  
+  // Add photo to array
+  photos.push(photoData);
+  
+  // Write back to file
+  fs.writeFile(dataPath, JSON.stringify(photos, null, 2), 'utf8', (err) => {
+    if (err) {
+      console.error('写入 photos.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '保存照片失败' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: '照片已保存', 
+      photo: photoData 
+    });
+  });
+});
+
+/**
+ * GET /api/photos/:id
+ * Get a specific photo by ID
+ */
+router.get('/photos/:id', (req, res) => {
+  const photoId = req.params.id;
+  const dataPath = path.join(__dirname, '../../data/photos.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return res.status(404).json({ 
+      success: false, 
+      message: '照片不存在' 
+    });
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 photos.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '无法读取照片数据' 
+      });
+    }
+    
+    try {
+      const photos = JSON.parse(fileData);
+      const photo = photos.find(p => p.id === photoId);
+      
+      if (!photo) {
+        return res.status(404).json({ 
+          success: false, 
+          message: '照片不存在' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        photo: photo 
+      });
+    } catch (parseErr) {
+      console.error('解析 photos.json 失败：', parseErr);
+      res.status(500).json({ 
+        success: false, 
+        message: '数据解析失败' 
+      });
+    }
+  });
+});
+
+/**
+ * DELETE /api/photos/:id
+ * Delete a photo by ID
+ */
+router.delete('/photos/:id', (req, res) => {
+  const photoId = req.params.id;
+  const dataPath = path.join(__dirname, '../../data/photos.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return res.status(404).json({ 
+      success: false, 
+      message: '照片不存在' 
+    });
+  }
+  
+  fs.readFile(dataPath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error('读取 photos.json 失败：', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: '无法读取照片数据' 
+      });
+    }
+    
+    try {
+      let photos = JSON.parse(fileData);
+      const photoIndex = photos.findIndex(p => p.id === photoId);
+      
+      if (photoIndex === -1) {
+        return res.status(404).json({ 
+          success: false, 
+          message: '照片不存在' 
+        });
+      }
+      
+      // Remove photo
+      photos.splice(photoIndex, 1);
+      
+      // Write back to file
+      fs.writeFile(dataPath, JSON.stringify(photos, null, 2), 'utf8', (writeErr) => {
+        if (writeErr) {
+          console.error('写入 photos.json 失败：', writeErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: '删除照片失败' 
+          });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: '照片已删除' 
+        });
+      });
+    } catch (parseErr) {
+      console.error('解析 photos.json 失败：', parseErr);
+      res.status(500).json({ 
+        success: false, 
+        message: '数据解析失败' 
+      });
+    }
+  });
+});
+
+/**
+ * Create an empty photos.json file if it doesn't exist
+ */
+(function createPhotosFile() {
+  const dataPath = path.join(__dirname, '../../data/photos.json');
+  if (!fs.existsSync(dataPath)) {
+    try {
+      fs.writeFileSync(dataPath, '[]', 'utf8');
+      console.log('Created empty photos.json file');
+    } catch (err) {
+      console.error('Error creating photos.json:', err);
+    }
+  }
+})();
