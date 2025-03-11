@@ -1,670 +1,907 @@
 /* ========== 全局与基础 ========== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  html, body {
-    height: 100%;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-  }
-  
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-  
-  /* ========== 头部（Header） ========== */
-  .app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #005f73;
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    position: relative;
-  }
-  
-  .app-header .logo {
-    display: flex;
-    align-items: center;
-  }
-  .app-header .logo img {
-    width: 40px;
-    height: 40px;
-    margin-right: 0.5rem;
-  }
-  
-  .app-header .nav-bar ul {
-    display: flex;
-    list-style: none;
-  }
-  .app-header .nav-bar li {
-    margin-left: 1.5rem;
-  }
-  .app-header .nav-bar a {
-    font-weight: 500;
-    transition: color 0.3s ease;
-    color: #fff; /* 让文字保持白色 */
-  }
-  .app-header .nav-bar a:hover {
-    color: #94d2bd;
-  }
-  
-  /* 移动端菜单图标 */
-  .mobile-menu-icon {
-    display: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-  .mobile-menu-icon i {
-    color: #fff;
-  }
-  
-  /* ========== 侧边栏（Sidebar） ========== */
-    /* 侧边栏默认隐藏 */
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: -250px; /* 初始隐藏 */
-        width: 250px;
-        height: 100%;
-        background-color: #0a9396;
-        color: #fff;
-        padding: 1rem;
-        transition: left 0.3s ease; /* 平滑显示效果 */
-        z-index: 1000;
-    }
-
-    /* 显示侧边栏 */
-    .sidebar.show {
-        left: 0;
-    }
-
-    /* 响应式调整 */
-    @media (max-width: 768px) {
-        .sidebar {
-            width: 200px;
-        }
-    }
-
-  .sidebar-close {
-    text-align: right;
-    margin-bottom: 1rem;
-    cursor: pointer;
-  }
-  .sidebar-close i {
-    font-size: 1.2rem;
-    color: #fff;
-  }
-  
-  .profile-section {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  .user-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 0.5rem;
-  }
-  .profile-section h3 {
-    margin-bottom: 0.5rem;
-  }
-  .profile-section button {
-    background-color: #94d2bd;
-    border: none;
-    padding: 0.5rem 1rem;
-    color: #333;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.3s ease;
-  }
-  .profile-section button:hover {
-    background-color: #e9f5f3;
-  }
-  
-  .menu-list {
-    list-style: none;
-    margin-top: 1rem;
-  }
-  .menu-list li {
-    margin: 1rem 0;
-  }
-  .menu-list a {
-    color: #fff;
-    font-size: 1rem;
-    transition: color 0.3s ease;
-  }
-  .menu-list a:hover {
-    color: #e9f5f3;
-  }
-  
-  .footer-section {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    text-align: center;
-    font-size: 0.9rem;
-    opacity: 0.8;
-  }
-  
-  /* ========== 模态框（Modal） ========== */
-  .modal {
-    display: none; /* 初始隐藏 */
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  .modal-content {
-    background-color: #fff;
-    margin: 5% auto;
-    border-radius: 6px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 500px;
-    position: relative;
-  }
-  .close-modal {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-  .tabs {
-    display: flex;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #ccc;
-  }
-  .tablink {
-    flex: 1;
-    padding: 0.5rem;
-    text-align: center;
-    cursor: pointer;
-    background-color: #eaeaea;
-    border: none;
-    font-size: 1rem;
-    outline: none;
-  }
-  .tablink.active {
-    background-color: #fff;
-    font-weight: bold;
-  }
-  .tab-content {
-    display: none;
-  }
-  .tab-content.active {
-    display: block;
-  }
-  
-  /* ========== 表单与按钮 ========== */
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  .form-group label {
-    display: inline-block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  button[type="submit"],
-  button[type="button"],
-  button {
-    background-color: #0a9396;
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.3s ease;
-  }
-  button:hover {
-    background-color: #94d2bd;
-  }
-
-  .auth-button-wrapper {
-    margin-left: 1rem;
-  }
-  .auth-button-wrapper button {
-    background-color: #94d2bd;
-    border: none;
-    padding: 0.5rem 1rem;
-    color: #333;
-    font-weight: 500;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .auth-button-wrapper button:hover {
-    background-color: #e9f5f3;
-  }
-  
-  /* ========== 英雄区（Hero Section） ========== */
-  .hero-section {
-    text-align: center;
-    background: url("../assets/images/hero-bg.jpg") no-repeat center center / cover;
-    padding: 4rem 2rem;
-    color: #000; /* 如果背景较深，可以用白色字体 */
-  }
-  .hero-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  .hero-section p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-  }
-  .hero-section button {
-    background-color: #94d2bd;
-    color: #333;
-    font-size: 1rem;
-  }
-  .hero-section button:hover {
-    background-color: #e9f5f3;
-  }
-  
-  /* ========== 访问记录区 (Visited Section) ========== */
-  .visited-section {
-    padding: 2rem;
-    background-color: #fff;
-  }
-  .visited-section h2 {
-    margin-bottom: 1rem;
-  }
-  #visitedStats {
-    margin-bottom: 1rem;
-    font-weight: 600;
-    color: #333;
-  }
-  #visitedList {
-    list-style-type: disc;
-    margin-left: 2rem;
-    padding-left: 1rem;
-  }
-  /* 和你之前的 .modal, .modal-content 一致就行 */
-  #visitListModal {
-    display: none; 
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  #visitListModal .modal-content {
-    background-color: #fff;
-    margin: 5% auto;
-    border-radius: 6px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 600px;
-    position: relative;
-  }
-  #visitListCloseBtn {
-    position: absolute;
-    right: 1rem; top: 1rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-
-  
-  /* ========== 旅行计划区 (Planner Section) ========== */
-  .travel-planner-section {
-    padding: 2rem;
-    background-color: #fafafa;
-  }
-  .travel-planner-section h2 {
-    margin-bottom: 1rem;
-  }
-  #travelPlanList {
-    margin-top: 1rem;
-    list-style-type: circle;
-    padding-left: 1rem;
-  }
-  #travelPlanList li {
-    margin-bottom: 0.5rem;
-  }
-  /* 让搜索下拉菜单在输入框下方 */
-  .autocomplete-wrapper {
-    position: relative;
-  }
-
-  .search-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    background-color: #fff;
-    border: 1px solid #ccc;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 999;
-    display: none; /* 默认隐藏 */
-  }
-
-  .search-list li {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-  }
-
-  .search-list li:hover {
-    background-color: #f2f2f2;
-  }
-  
-  /* ========== 页脚（Footer） ========== */
-  .app-footer {
-    text-align: center;
-    padding: 1rem;
-    background-color: #0a9396;
-    color: #fff;
-    position: relative;
-  }
-  
-  /* ========== 响应式 ========== */
-  @media (max-width: 768px) {
-    .app-header .nav-bar ul {
-      display: none;
-    }
-    .mobile-menu-icon {
-      display: block;
-    }
-    .sidebar {
-      width: 200px;
-    }
-    .menu-list li {
-      margin: 0.75rem 0;
-    }
-  }
-  @media (max-width: 500px) {
-    .hero-section h2 {
-      font-size: 1.8rem;
-    }
-    .hero-section p {
-      font-size: 1rem;
-    }
-  }
-  
-  /* Add this to styles/main.css */
-
-/* ========== 照片库样式 ========== */
-.gallery-section {
-  padding: 2rem;
-  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.gallery-section h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: #0a9396;
+html, body {
+  height: 100%;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
 }
 
-.gallery-filters {
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ========== 头部（Header） ========== */
+.app-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #005f73;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.filter-group {
+.app-header .logo {
   display: flex;
   align-items: center;
 }
-
-.filter-group label {
+.app-header .logo img {
+  width: 40px;
+  height: 40px;
   margin-right: 0.5rem;
-  font-weight: 500;
 }
 
-.filter-group select {
+.app-header .nav-bar ul {
+  display: flex;
+  list-style: none;
+}
+.app-header .nav-bar li {
+  margin-left: 1.5rem;
+}
+.app-header .nav-bar a {
+  font-weight: 500;
+  transition: color 0.3s ease;
+  color: #fff; /* 让文字保持白色 */
+}
+.app-header .nav-bar a:hover {
+  color: #94d2bd;
+}
+
+/* 移动端菜单图标 */
+.mobile-menu-icon {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.mobile-menu-icon i {
+  color: #fff;
+}
+
+/* ========== 侧边栏（Sidebar） ========== */
+/* 侧边栏默认隐藏 */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* 初始隐藏 */
+  width: 250px;
+  height: 100%;
+  background-color: #0a9396;
+  color: #fff;
+  padding: 1rem;
+  transition: left 0.3s ease; /* 平滑显示效果 */
+  z-index: 1000;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 显示侧边栏 */
+.sidebar.show {
+  left: 0;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+}
+
+.sidebar-close {
+  text-align: right;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+.sidebar-close i {
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.profile-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 0.5rem;
+}
+.profile-section h3 {
+  margin-bottom: 0.5rem;
+}
+.profile-section button {
+  background-color: #94d2bd;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+.profile-section button:hover {
+  background-color: #e9f5f3;
+}
+
+.menu-list {
+  list-style: none;
+  margin-top: 1rem;
+}
+.menu-list li {
+  margin: 1rem 0;
+}
+.menu-list a {
+  color: #fff;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+.menu-list a:hover {
+  color: #e9f5f3;
+}
+
+.footer-section {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* ========== 模态框（Modal） ========== */
+.modal {
+  display: none; /* 初始隐藏 */
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  border-radius: 8px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.close-modal {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #777;
+  transition: color 0.2s;
+}
+.close-modal:hover {
+  color: #333;
+}
+.tabs {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+.tablink {
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+  color: #0a9396; /* Green text for inactive tabs */
+  background-color: #f5f5f5;
+}
+
+.tablink:first-child {
+  border-top-left-radius: 4px;
+}
+
+.tablink:last-child {
+  border-top-right-radius: 4px;
+}
+
+.tablink.active {
+  background-color: #0a9396; /* Green background for active tabs */
+  color: white; /* White text for active tabs */
+  font-weight: bold;
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* ========== 表单与按钮 ========== */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-group label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #0a9396;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 147, 150, 0.2);
+}
+
+button[type="submit"],
+button[type="button"],
+button {
+  background-color: #0a9396;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+button:hover {
+  background-color: #008080;
+}
+
+.auth-button-wrapper {
+  margin-left: 1rem;
+}
+.auth-button-wrapper button {
+  background-color: #94d2bd;
+  border: none;
+  padding: 0.5rem 1rem;
+  color: #333;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.auth-button-wrapper button:hover {
+  background-color: #e9f5f3;
+}
+
+/* ========== 英雄区（Hero Section） ========== */
+.hero-section {
+  text-align: center;
+  background: url("../assets/images/hero-bg.jpg") no-repeat center center / cover;
+  padding: 5rem 2rem;
+  color: #000; /* 如果背景较深，可以用白色字体 */
+}
+.hero-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+.hero-section p {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-section button {
+  background-color: #0a9396;
+  color: white;
+  font-size: 1.1rem;
+  padding: 0.85rem 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.hero-section button:hover {
+  background-color: #008080;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== 访问记录区 (Visited Section) ========== */
+.visited-section {
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.visited-section h2 {
+  color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
+}
+
+/* Filter controls styling */
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  background-color: #f5f7fa;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.filter-controls label {
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.filter-controls input[type="number"] {
+  width: 120px;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #fff;
 }
 
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.gallery-item {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.filter-controls button {
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: transform 0.3s ease;
-  height: 200px;
+  transition: background-color 0.2s;
 }
 
-.gallery-item:hover {
-  transform: scale(1.03);
+.filter-controls button:hover {
+  background-color: #0b7a7c;
 }
 
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.filter-controls button:not(:last-child) {
+  margin-right: 0.5rem;
 }
 
-.gallery-item-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-  color: #fff;
-  padding: 1rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.gallery-item:hover .gallery-item-info {
-  opacity: 1;
-}
-
-.gallery-item-title {
+#visitedStats {
   font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
+  background-color: #e9f5f3;
+  padding: 0.75rem;
+  border-radius: 4px;
+  text-align: center;
+}
+
+#visitedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.visited-item {
+  background-color: #f5f7fa;
+  padding: 0.75rem;
+  border-radius: 4px;
+  border-left: 4px solid #0a9396;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visited-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.visited-year {
+  font-weight: 700;
+  color: #0a9396;
   margin-bottom: 0.25rem;
 }
 
-.gallery-item-location {
-  font-size: 0.9rem;
-  opacity: 0.9;
+.visited-location {
+  color: #555;
 }
 
-.gallery-empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 3rem;
-  background-color: #f9f9f9;
+/* Line drawing controls */
+.line-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f5f7fa;
+  border-radius: 6px;
+  align-items: center;
+}
+
+.line-controls label {
+  font-weight: 500;
+  margin-right: 0.25rem;
+}
+
+.line-controls input[type="color"] {
+  vertical-align: middle;
+  border: none;
+  height: 30px;
+  width: 50px;
+  padding: 0;
+  background: none;
+}
+
+.line-controls input[type="number"] {
+  width: 60px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.line-controls button {
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.line-controls button:hover {
+  background-color: #0b7a7c;
+}
+
+.line-controls button:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+/* Visit list modal */
+#visitListModal .modal-content {
+  max-width: 700px;
+}
+
+#visitSortSelect {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+#visitListDetail {
+  margin-top: 1.5rem;
+}
+
+/* Draggable list */
+.visit-list-container {
+  background-color: #f5f7fa;
   border-radius: 8px;
+  overflow: hidden;
+}
+
+.visit-list-header {
+  padding: 1rem;
+  background-color: #e9f5f3;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.visit-list-header h3 {
+  margin: 0;
+  color: #0a9396;
+}
+
+.drag-instructions {
+  font-size: 0.9rem;
   color: #666;
 }
 
-.gallery-empty-state i {
+.visit-draggable-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.visit-item {
+  padding: 1rem;
+  margin: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  border-left: 4px solid #0a9396;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visit-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.visit-item.dragging {
+  opacity: 0.5;
+  background-color: #e9f5f3;
+}
+
+.visit-item-content {
+  flex: 1;
+}
+
+.visit-year {
+  font-weight: 700;
+  color: #0a9396;
+  margin-right: 0.5rem;
+}
+
+.visit-location {
+  color: #555;
+}
+
+.visit-drag-handle {
+  color: #999;
+  cursor: grab;
+  padding: 0.5rem;
+}
+
+.visit-drag-handle:active {
+  cursor: grabbing;
+}
+
+.save-order-btn {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: 0.75rem;
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-order-btn:hover {
+  background-color: #008080;
+}
+
+.empty-message {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+}
+
+/* ========== 旅行计划区 (Travel Planner Section) ========== */
+.travel-planner-section {
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.travel-planner-section h2 {
+  color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
+}
+
+/* Travel plan form */
+#travelPlanForm {
+  background-color: #f5f7fa;
+  padding: 1.5rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+#travelPlanForm .form-group {
+  margin-bottom: 1rem;
+}
+
+#travelPlanForm label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+#travelPlanForm input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+#travelPlanForm button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background-color 0.2s;
+}
+
+#travelPlanForm button[type="submit"]:hover {
+  background-color: #0b7a7c;
+}
+
+/* Travel plan list */
+#travelPlanList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#travelPlanList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  border-left: 4px solid #f48c06;
+}
+
+#travelPlanList li .plan-info {
+  flex: 1;
+}
+
+#travelPlanList li .plan-year {
+  font-weight: 700;
+  color: #f48c06;
+  margin-right: 0.5rem;
+}
+
+#travelPlanList li .plan-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#travelPlanList button {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+#travelPlanList button.remove-btn {
+  background-color: #e63946;
+  color: white;
+}
+
+#travelPlanList button.remove-btn:hover {
+  background-color: #d62828;
+}
+
+#travelPlanList button.visited-btn {
+  background-color: #0a9396;
+  color: white;
+}
+
+#travelPlanList button.visited-btn:hover {
+  background-color: #0b7a7c;
+}
+
+/* 让搜索下拉菜单在输入框下方 */
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.search-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 999;
+  display: none; /* 默认隐藏 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-list li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.search-list li:hover {
+  background-color: #e9f5f3;
+}
+
+/* ========== 天气部分（Weather Section） ========== */
+.weather-section {
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.weather-section h2 {
+  color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
+}
+
+.weather-container {
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.weather-filters {
+  padding: 1.5rem;
+  background-color: #e9f5f3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+#weatherLocationSelect {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  min-width: 250px;
+}
+
+.weather-type-tabs {
+  display: flex;
+  margin-left: auto;
+}
+
+/* Weather tab styles */
+.weather-tab {
+  padding: 0.75rem 1.5rem;
+  background-color: #f5f7fa;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+  color: #0a9396; /* Green text for inactive tabs */
+}
+
+.weather-tab:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.weather-tab:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.weather-tab.active {
+  background-color: #0a9396; /* Green background for active tabs */
+  color: white; /* White text for active tabs */
+}
+
+.weather-content {
+  min-height: 300px;
+  padding: 2rem;
+}
+
+.weather-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.weather-card-placeholder {
+  text-align: center;
+  color: #999;
+  padding: 3rem;
+}
+
+.weather-card-placeholder i {
   font-size: 3rem;
   margin-bottom: 1rem;
   opacity: 0.3;
 }
 
-.gallery-actions {
-  text-align: center;
+.weather-forecast {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
 }
 
-.btn-primary {
-  background-color: #0a9396;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #94d2bd;
-}
-
-/* Photo upload modal */
-.photo-preview-container {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-/* Photo view modal */
-.photo-view-content {
-  max-width: 900px;
-  width: 90%;
-  padding: 0;
-  overflow: hidden;
+.forecast-day {
+  background-color: white;
   border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  text-align: center;
 }
 
-.photo-view-container {
-  display: flex;
-  flex-direction: column;
+.forecast-date {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-.photo-view-container img {
-  width: 100%;
-  max-height: 70vh;
-  object-fit: contain;
-  background-color: #000;
+.forecast-icon {
+  font-size: 2rem;
+  margin: 1rem 0;
+  color: #0a9396;
 }
 
-.photo-view-info {
-  padding: 1.5rem;
-}
-
-.photo-view-info h3 {
+.forecast-temp {
   font-size: 1.5rem;
+  font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
-.photo-view-info p {
-  margin-bottom: 0.5rem;
+.forecast-desc {
   color: #666;
-}
-
-.photo-view-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #eee;
-}
-
-.btn-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background-color: #f4f4f4;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-.btn-circle:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-danger {
-  background-color: #e63946;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.btn-danger:hover {
-  background-color: #d62828;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-  .gallery-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .photo-view-container {
-    flex-direction: column;
-  }
-  
-  .photo-view-container img {
-    width: 100%;
-    max-height: 50vh;
-  }
-}
-
-@media (max-width: 480px) {
-  .gallery-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .gallery-filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-group {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .filter-group select {
-    width: 100%;
-    margin-top: 0.25rem;
-  }
 }
 
 /* ========== 统计区域样式 ========== */
 .statistics-section {
   padding: 2rem;
-  background-color: #f5f7fa;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
 }
 
 .statistics-section h2 {
-  text-align: center;
-  margin-bottom: 2rem;
   color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
 }
 
 .stats-grid {
@@ -743,86 +980,390 @@
   color: #333;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+/* ========== 页脚（Footer） ========== */
+.app-footer {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #0a9396;
+  color: #fff;
+  margin-top: 2rem;
+}
+
+/* ========== 通知样式 ========== */
+#notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.notification {
+  padding: 12px 20px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  color: white;
+  max-width: 300px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  animation: slideIn 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.notification-success {
+  background-color: #4CAF50;
+}
+
+.notification-error {
+  background-color: #F44336;
+}
+
+.notification-warning {
+  background-color: #FF9800;
+}
+
+.notification-info {
+  background-color: #2196F3;
+}
+
+.notification-icon {
+  margin-right: 10px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
-@media (max-width: 768px) {
-  .stats-charts {
-    grid-template-columns: 1fr;
+@keyframes fadeOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
   }
 }
 
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-card {
-    padding: 1rem;
-  }
-  
-  .stats-icon {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .stats-icon i {
-    font-size: 1.5rem;
-  }
-  
-  .stats-number {
-    font-size: 1.5rem;
-  }
+/* Demo login prompt styling */
+.demo-login-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-width: 300px;
+  animation: slideUp 0.3s ease;
 }
 
-/* ========== 旅行日记样式 ========== */
+.demo-login-content {
+  padding: 16px;
+}
+
+.demo-login-content h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #0a9396;
+}
+
+.demo-login-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.demo-login-buttons .btn-cancel {
+  background-color: #f1f1f1;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.demo-login-buttons .btn-primary {
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Photo Gallery Styles */
+.gallery-section {
+  padding: 2rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.gallery-section h2 {
+  color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
+}
+
+.gallery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background-color: #f5f7fa;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  margin-right: 1.5rem;
+}
+
+.filter-group label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  min-width: 150px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  height: 200px;
+}
+
+.gallery-item:hover {
+  transform: scale(1.03);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-item-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: #fff;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gallery-item:hover .gallery-item-info {
+  opacity: 1;
+}
+
+.gallery-item-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.gallery-item-location {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.gallery-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  color: #666;
+}
+
+.gallery-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+  color: #0a9396;
+}
+
+.gallery-actions {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* Photo upload modal */
+.photo-preview-container {
+  margin-top: 1rem;
+  text-align: center;
+  background-color: #f5f7fa;
+  padding: 1rem;
+  border-radius: 4px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Photo view modal */
+.photo-view-content {
+  max-width: 900px;
+  width: 90%;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.photo-view-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-view-container img {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  background-color: #000;
+}
+
+.photo-view-info {
+  padding: 1.5rem;
+}
+
+.photo-view-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.photo-view-info p {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.photo-view-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.btn-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: #f4f4f4;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.btn-circle:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-danger {
+  background-color: #e63946;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #d62828;
+}
+
+/* Travel Diary Styles */
 .diary-section {
   padding: 2rem;
-  background-color: #fafafa;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 1200px;
 }
 
 .diary-section h2 {
-  text-align: center;
-  margin-bottom: 2rem;
   color: #0a9396;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e9f5f3;
+  padding-bottom: 0.5rem;
 }
 
 .diary-container {
   display: flex;
-  background-color: #fff;
+  background-color: #f5f7fa;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   min-height: 600px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 /* Sidebar */
 .diary-sidebar {
   width: 300px;
-  border-right: 1px solid #eee;
+  background-color: #f5f7fa;
+  border-right: 1px solid #e1e1e1;
   display: flex;
   flex-direction: column;
 }
 
 .diary-search {
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e1e1e1;
 }
 
 .diary-search input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 0.95rem;
 }
 
 .diary-filters {
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e1e1e1;
   display: flex;
   gap: 0.5rem;
 }
@@ -832,11 +1373,12 @@
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 0.95rem;
 }
 
 .diary-list-header {
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e1e1e1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -844,12 +1386,22 @@
 
 .diary-list-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  color: #333;
 }
 
 .btn-small {
   padding: 0.25rem 0.5rem;
   font-size: 0.85rem;
+  background-color: #0a9396;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-small:hover {
+  background-color: #008080;
 }
 
 .diary-list {
@@ -862,13 +1414,13 @@
 
 .diary-list li {
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e1e1e1;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .diary-list li:hover {
-  background-color: #f5f7fa;
+  background-color: #e9f5f3;
 }
 
 .diary-list li.active {
@@ -886,6 +1438,7 @@
 .diary-item-title {
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: #333;
 }
 
 .diary-item-meta {
@@ -905,6 +1458,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  background-color: white;
 }
 
 .diary-placeholder {
@@ -921,6 +1475,7 @@
   font-size: 3rem;
   margin-bottom: 1rem;
   opacity: 0.3;
+  color: #0a9396;
 }
 
 .diary-view {
@@ -938,6 +1493,7 @@
 .diary-view-title {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
+  color: #333;
 }
 
 .diary-view-meta {
@@ -950,6 +1506,7 @@
 .diary-view-content {
   line-height: 1.6;
   white-space: pre-wrap;
+  color: #333;
 }
 
 .diary-view-actions {
@@ -982,6 +1539,7 @@
 
 .diary-editor-header h3 {
   margin: 0;
+  color: #0a9396;
 }
 
 .btn-text {
@@ -1010,9 +1568,10 @@
   resize: vertical;
   font-family: inherit;
   font-size: 1rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  min-height: 200px;
 }
 
 .mood-selector {
@@ -1045,8 +1604,12 @@
   margin-right: 0.5rem;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for both components */
 @media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
   .diary-container {
     flex-direction: column;
   }
@@ -1062,4 +1625,152 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .gallery-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-right: 0;
+  }
+  
+  .filter-group select {
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header .nav-bar ul {
+    display: none;
+  }
+  
+  .mobile-menu-icon {
+    display: block;
+  }
+  
+  .sidebar {
+    width: 200px;
+  }
+  
+  .menu-list li {
+    margin: 0.75rem 0;
+  }
+  
+  #visitedList {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-controls, .line-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-controls > *, .line-controls > * {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  #travelPlanList li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  #travelPlanList li .plan-actions {
+    margin-top: 0.75rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .weather-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .weather-type-tabs {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+  
+  .weather-tab {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .hero-section h2 {
+    font-size: 1.8rem;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-card {
+    padding: 1rem;
+  }
+  
+  .stats-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .stats-icon i {
+    font-size: 1.5rem;
+  }
+  
+  .stats-number {
+    font-size: 1.5rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}
+
+/* Ensure that inputs don't cause unwanted scrolling on mobile */
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS zoom */
+}
+
+button {
+  min-height: 44px; /* Apple's recommended minimum touch target size */
 }
