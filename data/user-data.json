@@ -35,11 +35,6 @@
       ],
       "travelPlans": [
         {
-          "country": "France",
-          "city": "Paris",
-          "year": 2025
-        },
-        {
           "country": "Italy",
           "city": "Rome",
           "year": 2024
@@ -73,6 +68,11 @@
           "countryZH": "日本",
           "city": "Kyoto",
           "cityZH": "京都"
+        },
+        {
+          "year": 2025,
+          "country": "France",
+          "city": "Paris"
         },
         {
           "year": 2026,

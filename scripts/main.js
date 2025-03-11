@@ -6,9 +6,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   console.log("旅行足迹 WebApp 已加载");
 
-  if (!sessionStorage.getItem('demoLoginDeclined')) {
-    updateLoginState();
-  }
+  // 立即更新登录状态并检查是否显示demo登录选项
+  updateLoginState();
 
   // ====== 侧边栏 ======
   const sidebar = document.getElementById('sidebar');
@@ -122,9 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-  // ====== 登录状态回显 ======
-  updateLoginState();
 
   // "开始记录"按钮
   const startBtn = document.getElementById('startTrackingBtn');
@@ -356,6 +352,7 @@ function updateLoginState() {
   if (savedUser && savedUser.username) {
     loadAllUserData();
   } else {
+    // 直接显示demo登录选项，无需检查sessionStorage
     showDemoLoginOption();
   }
 }
@@ -400,8 +397,7 @@ function showDemoLoginOption() {
   cancelBtn.addEventListener('click', () => {
     document.body.removeChild(demoPrompt);
     
-    // Create a sessionStorage flag instead of localStorage
-    // This makes the prompt show again on page refresh
+    // 只在当前会话内阻止再次显示
     sessionStorage.setItem('demoLoginDeclined', 'true');
   });
   
@@ -829,8 +825,7 @@ async function renderTravelPlanList() {
     planLocations.forEach(loc => {
       const exists = allPlans.some(plan => 
         (plan.country === loc.country || plan.country === loc.countryZH) && 
-        (plan.city === loc.city || plan.city === loc.cityZH) && 
-        (plan.lat === loc.latitude || plan.lng === loc.longitude)
+        (plan.city === loc.city || plan.city === loc.cityZH)
       );
       
       if (!exists) {

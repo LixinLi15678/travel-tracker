@@ -204,8 +204,8 @@ a {
   font-size: 1rem;
   outline: none;
   transition: background 0.2s, color 0.2s;
-  color: #0a9396; /* Green text for inactive tabs */
-  background-color: #f5f5f5;
+  color: #0a9396; /* 绿字 */
+  background-color: #f5f5f5; /* 浅灰底 */
 }
 
 .tablink:first-child {
@@ -217,10 +217,11 @@ a {
 }
 
 .tablink.active {
-  background-color: #0a9396; /* Green background for active tabs */
-  color: white; /* White text for active tabs */
+  background-color: #0a9396; /* 绿底 */
+  color: white; /* 白字 */
   font-weight: bold;
 }
+
 .tab-content {
   display: none;
 }
@@ -807,7 +808,7 @@ button:hover {
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s, color 0.2s;
-  color: #0a9396; /* Green text for inactive tabs */
+  color: #0a9396; /* 绿字 */
 }
 
 .weather-tab:first-child {
