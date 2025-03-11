@@ -108,5 +108,16 @@
     "longitude": 139.7638947,
     "type": "visited",
     "year": 2025
+  },
+  {
+    "username": "demo",
+    "country": "中国",
+    "countryZH": "中国",
+    "city": "北京市, 中国",
+    "cityZH": "北京市, 中国",
+    "latitude": 40.190632,
+    "longitude": 116.412144,
+    "type": "visited",
+    "year": 2026
   }
 ]

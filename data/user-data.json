@@ -45,7 +45,41 @@
           "year": 2024
         }
       ],
-      "visitedCities": []
+      "visitedCities": [
+        {
+          "year": 2023,
+          "country": "China",
+          "countryZH": "中国",
+          "city": "Shanghai",
+          "cityZH": "上海"
+        },
+        {
+          "year": 2022,
+          "country": "Japan",
+          "countryZH": "日本",
+          "city": "Tokyo",
+          "cityZH": "东京"
+        },
+        {
+          "year": 2023,
+          "country": "China",
+          "countryZH": "中国",
+          "city": "Beijing",
+          "cityZH": "北京"
+        },
+        {
+          "year": 2022,
+          "country": "Japan",
+          "countryZH": "日本",
+          "city": "Kyoto",
+          "cityZH": "京都"
+        },
+        {
+          "year": 2026,
+          "country": "中国",
+          "city": "北京市, 中国"
+        }
+      ]
     },
     "Leo": {
       "visitedCities": [
