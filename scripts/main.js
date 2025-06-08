@@ -76,49 +76,106 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = e.target.loginUsername.value.trim();
-      if (!username) return;
-      // 本地存 + 更新UI + 关弹窗
-      saveDataToLocal('loggedInUser', { username });
-      updateUserInfo({ nickname: username });
-      closeAuthModal();
-      loadAllUserData();
-      showNotification("登录成功", "success");
+
+      if (!username) {
+        showNotification("请输入用户名", "warning");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/user-data');
+        const data = await res.json();
+
+        if (!data.users || !data.users[username]) {
+          showNotification("用户不存在，请先注册", "error");
+
+          // 自动切换到注册标签并填充用户名
+          const registerTab = document.querySelector('.tablink[data-target="#registerTab"]');
+          if (registerTab) {
+            registerTab.click();
+            const registerUsernameInput = document.getElementById('registerUsername');
+            if (registerUsernameInput) {
+              registerUsernameInput.value = username;
+              registerUsernameInput.focus();
+            }
+          }
+          return;
+        }
+
+        // 登录成功
+        saveDataToLocal('loggedInUser', { username });
+        updateUserInfo({ nickname: username });
+        closeAuthModal();
+        showNotification("登录成功", "success");
+        loadAllUserData();
+
+      } catch (err) {
+        console.error("登录失败:", err);
+        showNotification("登录失败，请稍后再试", "error");
+      }
     });
   }
+
   if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = e.target.registerUsername.value.trim();
-      if (!username) return;
-      // 1) 本地
-      saveDataToLocal('loggedInUser', { username });
-      updateUserInfo({ nickname: username });
-      closeAuthModal();
-      // 2) 后端 => user-data
+
+      if (!username) {
+        showNotification("请输入用户名", "warning");
+        return;
+      }
+
       try {
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = '注册中...';
+        submitBtn.disabled = true;
+
         let res = await fetch('/api/user-data');
         let data = await res.json();
         if (!data.users) data.users = {};
-        if (!data.users[username]) {
-          data.users[username] = {
-            visitedCities: [],
-            travelPlans: []
-          };
+
+        // 检查用户是否已存在
+        const userExists = Object.keys(data.users).some(
+          existingUser => existingUser.toLowerCase() === username.toLowerCase()
+        );
+
+        if (userExists) {
+          showNotification("用户名已存在，请选择其他用户名", "error");
+          submitBtn.textContent = '注册';
+          submitBtn.disabled = false;
+          e.target.registerUsername.focus();
+          e.target.registerUsername.select();
+          return;
         }
+
+        // 创建新用户并保存
+        data.users[username] = {
+          visitedCities: [],
+          travelPlans: [],
+          createTime: Date.now()
+        };
+
         await fetch('/api/user-data', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-        console.log("注册: 已在后端创建用户", username);
-        showNotification("注册成功", "success");
+
+        // 自动登录
+        saveDataToLocal('loggedInUser', { username });
+        updateUserInfo({ nickname: username });
+        closeAuthModal();
+        showNotification("注册成功，已自动登录", "success");
+        e.target.reset();
         loadAllUserData();
+
       } catch (err) {
-        console.error("注册时写后端失败:", err);
-        showNotification("注册部分成功，但数据保存失败", "warning");
+        console.error("注册失败:", err);
+        showNotification("注册失败，请稍后再试", "error");
       }
     });
   }
@@ -180,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const savedUser = loadDataFromLocal('loggedInUser');
       if (!savedUser || !savedUser.username) {
         showNotification("请先登录，再添加旅行计划", "warning");
-        showDemoLoginOption();
+        openAuthModal();
         return;
       }
       
@@ -443,7 +500,14 @@ function loadAllUserData() {
   renderVisitedList();
   renderTravelPlanList();
   loadLocationsAndMark();
-  if (typeof updateStatistics === 'function') updateStatistics();
+
+  // 确保统计功能被更新
+  if (typeof updateStatistics === 'function') {
+    updateStatistics();
+  } else {
+    console.error('updateStatistics function not found');
+  }
+
   if (typeof loadPhotoGallery === 'function') loadPhotoGallery();
   if (typeof loadDiaryEntries === 'function') loadDiaryEntries();
   if (typeof loadWeatherLocations === 'function') loadWeatherLocations();
@@ -1406,6 +1470,16 @@ function loadDataFromLocal(key) {
     console.error("从localStorage读取失败:", err);
     return null;
   }
+}
+
+function requireLogin(actionName = '执行此操作') {
+  const savedUser = loadDataFromLocal('loggedInUser');
+  if (!savedUser || !savedUser.username) {
+    showNotification(`请先登录，再${actionName}`, 'warning');
+    openAuthModal();
+    return false;
+  }
+  return true;
 }
 
 // Make functions globally available

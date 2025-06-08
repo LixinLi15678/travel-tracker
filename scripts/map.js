@@ -32,8 +32,7 @@ function initializeMap() {
     // 默认加载当前用户全部地点
     loadLocationsAndMark(0);
 
-    // 可选：添加图例
-    addMapLegend();
+    // addMapLegend();
   } catch (error) {
     console.error("地图初始化失败：", error);
   }
@@ -52,7 +51,7 @@ function loadLocationsAndMark(filterYear = 0) {
   }
   markerGroup = L.layerGroup().addTo(map);
 
-  // Remove existing legend if any
+  // 移除已存在的图例
   if (legendControl) {
     map.removeControl(legendControl);
     legendControl = null;
@@ -139,6 +138,12 @@ function loadLocationsAndMark(filterYear = 0) {
  * 在地图上添加图例(可自定义)
  */
 function addMapLegend() {
+  // 先移除已存在的图例，防止重复添加
+  if (legendControl) {
+    map.removeControl(legendControl);
+    legendControl = null;
+  }
+
   legendControl = L.control({ position: 'bottomleft' });
   legendControl.onAdd = function() {
     const div = L.DomUtil.create('div', 'map-legend');

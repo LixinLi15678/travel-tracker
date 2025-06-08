@@ -144,7 +144,12 @@ function setupPhotoViewModal() {
 async function openPhotoUploadModal() {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (!savedUser || !savedUser.username) {
-    alert('请先登录，再上传照片');
+    showNotification('请先登录，再上传照片', 'warning');
+
+    // 打开登录弹窗
+    if (typeof openAuthModal === 'function') {
+      openAuthModal();
+    }
     return;
   }
   

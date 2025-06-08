@@ -323,7 +323,12 @@ function viewDiaryEntry(diary) {
 async function openDiaryEditor() {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (!savedUser || !savedUser.username) {
-    alert('请先登录，再写日记');
+    showNotification('请先登录，再写日记', 'warning');
+
+    // 打开登录弹窗
+    if (typeof openAuthModal === 'function') {
+      openAuthModal();
+    }
     return;
   }
   

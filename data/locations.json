@@ -67,17 +67,6 @@
   },
   {
     "username": "Leo",
-    "country": "中国",
-    "countryZH": "中国",
-    "city": "北京市, 中国",
-    "cityZH": "北京市, 中国",
-    "latitude": 40.190632,
-    "longitude": 116.412144,
-    "type": "visited",
-    "year": 2024
-  },
-  {
-    "username": "Leo",
     "country": "美国",
     "countryZH": "美国",
     "city": "纽约/紐約, 纽约州 / 紐約州, 美利坚合众国/美利堅合眾國",
@@ -111,17 +100,6 @@
   },
   {
     "username": "demo",
-    "country": "中国",
-    "countryZH": "中国",
-    "city": "北京市, 中国",
-    "cityZH": "北京市, 中国",
-    "latitude": 40.190632,
-    "longitude": 116.412144,
-    "type": "visited",
-    "year": 2026
-  },
-  {
-    "username": "demo",
     "country": "法国",
     "countryZH": "法国",
     "city": "巴黎, 法兰西岛大区 / 法蘭西島大區, 法國本土/法国本土, 法国",
@@ -130,17 +108,6 @@
     "longitude": 2.3483915,
     "type": "visited",
     "year": 2026
-  },
-  {
-    "username": "Leo",
-    "country": "中国",
-    "countryZH": "中国",
-    "city": "北京市, 中国",
-    "cityZH": "北京市, 中国",
-    "latitude": 40.190632,
-    "longitude": 116.412144,
-    "type": "visited",
-    "year": 2025
   },
   {
     "username": "Teresa",
