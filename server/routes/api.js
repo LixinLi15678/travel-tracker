@@ -33,12 +33,10 @@ router.get('/user-data', (req, res) => {
  * 后端需要合并到 user-data.json 中
  */
 router.post('/user-data', (req, res) => {
-  const newData = req.body;  // { "users": { "某个用户名": {...} } }
+  const newData = req.body;
   const dataPath = path.join(__dirname, '../../data/user-data.json');
-  console.log("dataPath =>", dataPath);
 
   fs.readFile(dataPath, 'utf8', (err, fileData) => {
-    // 先把本地已有的 user-data.json 读出来
     let existingData = { users: {} };
     if (!err && fileData) {
       try {
@@ -49,11 +47,26 @@ router.post('/user-data', (req, res) => {
     }
     if (!existingData.users) existingData.users = {};
 
-    // 和 newData 合并
+    // 检查是否是新用户注册（通过createTime字段判断）
     if (newData && newData.users) {
-      // 遍历 newData.users 里的每个用户
       for (const uname in newData.users) {
-        // 直接用“整对象覆盖”的方式：前端拿到最新对象后，会带着 visitedCities、travelPlans 等全量信息过来
+        // 如果是新用户
+        if (!existingData.users[uname] && newData.users[uname].createTime) {
+          // 检查用户名是否已存在（不区分大小写）
+          const existingUsernames = Object.keys(existingData.users);
+          const isDuplicate = existingUsernames.some(
+            existing => existing.toLowerCase() === uname.toLowerCase()
+          );
+
+          if (isDuplicate) {
+            return res.status(400).json({
+              error: '用户名已存在',
+              success: false
+            });
+          }
+        }
+
+        // 更新或添加用户数据
         existingData.users[uname] = newData.users[uname];
       }
     } else {
@@ -64,14 +77,10 @@ router.post('/user-data', (req, res) => {
     fs.writeFile(dataPath, JSON.stringify(existingData, null, 2), 'utf8', (err2) => {
       if (err2) {
         console.error('写入 user-data.json 失败：', err2);
-        return res.status(500).json({ error: '无法保存用户数据' });
+        return res.status(500).json({ error: '无法保存用户数据', success: false });
       }
       res.json({ success: true, message: 'user-data已合并保存', data: existingData });
     });
-
-    // 打印下你POST的内容
-    console.log("==== newData ====");
-    console.log(JSON.stringify(newData, null, 2));
   });
 });
 

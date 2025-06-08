@@ -25,4 +25,4 @@ read -p "按回车结束..."
 
 echo "=== 即将关闭服务并退出... ==="
 # 如果上面是后台启动(&)，可以在这里 kill
-# pkill -f "node server/app.js"   # 根据具体进程来关闭
+pkill -f "node server/app.js"   # 根据具体进程来关闭

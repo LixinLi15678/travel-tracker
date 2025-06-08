@@ -50,6 +50,11 @@
           "cityZH": "东京"
         },
         {
+          "year": 2024,
+          "country": "Italy",
+          "city": "Rome"
+        },
+        {
           "year": 2023,
           "country": "China",
           "countryZH": "中国",
@@ -77,11 +82,6 @@
           "year": 2026,
           "country": "法国",
           "city": "巴黎, 法兰西岛大区 / 法蘭西島大區, 法國本土/法国本土, 法国"
-        },
-        {
-          "year": 2024,
-          "country": "Italy",
-          "city": "Rome"
         }
       ]
     },

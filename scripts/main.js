@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let data = await res.json();
         if (!data.users) data.users = {};
 
-        // 检查用户是否已存在
+        // 检查用户是否已存在（不区分大小写）
         const userExists = Object.keys(data.users).some(
           existingUser => existingUser.toLowerCase() === username.toLowerCase()
         );
@@ -159,11 +159,17 @@ document.addEventListener('DOMContentLoaded', function() {
           createTime: Date.now()
         };
 
-        await fetch('/api/user-data', {
+        const saveRes = await fetch('/api/user-data', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
+
+        // 检查服务器响应
+        const result = await saveRes.json();
+        if (!saveRes.ok || !result.success) {
+          throw new Error(result.error || '注册失败');
+        }
 
         // 自动登录
         saveDataToLocal('loggedInUser', { username });
@@ -173,9 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
         e.target.reset();
         loadAllUserData();
 
+        submitBtn.textContent = '注册';
+        submitBtn.disabled = false;
+
       } catch (err) {
         console.error("注册失败:", err);
-        showNotification("注册失败，请稍后再试", "error");
+        showNotification(err.message || "注册失败，请稍后再试", "error");
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        submitBtn.textContent = '注册';
+        submitBtn.disabled = false;
       }
     });
   }
@@ -307,6 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 创建通知容器
   createNotificationContainer();
+  updateLoginState();
+  addBackToTopButton();
 });
 
 /**
@@ -346,6 +360,8 @@ function handleAuthButtonClick() {
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
     localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('demoLoginShown');
+    demoLoginShown = false; // 重置变量
     updateUserInfo(null);
     showNotification("已登出", "info");
     // Reset all lists
@@ -355,9 +371,7 @@ function handleAuthButtonClick() {
     clearAllVisitedLines();
     loadLocationsAndMark(0);
 
-    demoLoginShown = false;
-
-    // Show demo login option again
+    // Show demo login option again after logout
     setTimeout(() => {
       showDemoLoginOption();
     }, 500);
@@ -422,11 +436,11 @@ function updateLoginState() {
 /**
  * Show demo login option - center on screen and block interactions
  */
-let demoLoginShown = false;
+let demoLoginShown = localStorage.getItem('demoLoginShown') === 'true';
 
 function showDemoLoginOption() {
   // 如果已经显示过，直接返回
-  if (demoLoginShown) {
+  if (demoLoginShown || localStorage.getItem('demoLoginShown') === 'true') {
     console.log("Demo登录提示已经显示过");
     return;
   }
@@ -445,6 +459,7 @@ function showDemoLoginOption() {
   }
 
   demoLoginShown = true;
+  localStorage.setItem('demoLoginShown', 'true');
   
   // Create the demo login prompt
   const demoPrompt = document.createElement('div');
@@ -1382,12 +1397,6 @@ async function saveNewVisitOrder(visitedArr) {
  * Show notification
  */
 function showNotification(message, type = 'info', duration = 3000) {
-  if (typeof window.showNotification === 'function') {
-    // Use the one from utils.js if available
-    window.showNotification(message, type, duration);
-    return;
-  }
-  
   // Check if notification container exists, if not create it
   let container = document.getElementById('notification-container');
   if (!container) {
@@ -1505,6 +1514,8 @@ window.handleAuthButtonClick = handleAuthButtonClick;
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.updateUserInfo = updateUserInfo;
-window.showNotification = showNotification;
 window.saveDataToLocal = saveDataToLocal;
 window.loadDataFromLocal = loadDataFromLocal;
+if (!window.showNotification) {
+  window.showNotification = showNotification;
+}

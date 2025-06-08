@@ -642,31 +642,25 @@
   <!-- 初始化应用 -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Travel Tracker v2.0 - Enhanced Edition loaded');
-      
+      console.log('Travel Tracker v4.0 - Enhanced Edition loaded');
+
       // Check for critical elements
       const criticalElements = [
         { id: 'map', name: 'Map container' },
         { id: 'sidebar', name: 'Sidebar' },
         { id: 'authModal', name: 'Auth modal' }
       ];
-      
+
       let missingElements = criticalElements.filter(el => !document.getElementById(el.id));
-      
+
       if (missingElements.length > 0) {
         console.error('Missing critical elements:', missingElements.map(el => el.name).join(', '));
       }
-      
+
       // Initialize components
       if (typeof initializeMobileEnhancements === 'function') {
         initializeMobileEnhancements();
       }
-      
-      // Create empty data files if needed
-      createEmptyDataFiles();
-      
-      // Update auth state UI
-      updateLoginState();
     });
     
     /**
