@@ -130,5 +130,27 @@
     "longitude": 2.3483915,
     "type": "visited",
     "year": 2026
+  },
+  {
+    "username": "Leo",
+    "country": "中国",
+    "countryZH": "中国",
+    "city": "北京市, 中国",
+    "cityZH": "北京市, 中国",
+    "latitude": 40.190632,
+    "longitude": 116.412144,
+    "type": "visited",
+    "year": 2025
+  },
+  {
+    "username": "Teresa",
+    "country": "加拿大",
+    "countryZH": "加拿大",
+    "city": "Toronto, Golden Horseshoe, 安大略, 加拿大",
+    "cityZH": "Toronto, Golden Horseshoe, 安大略, 加拿大",
+    "latitude": 43.6534817,
+    "longitude": -79.3839347,
+    "type": "visited",
+    "year": 2023
   }
 ]

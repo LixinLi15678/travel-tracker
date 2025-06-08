@@ -297,7 +297,9 @@ function handleAuthButtonClick() {
     document.getElementById('travelPlanList').innerHTML = "";
     clearAllVisitedLines();
     loadLocationsAndMark(0);
-    
+
+    demoLoginShown = false;
+
     // Show demo login option again
     setTimeout(() => {
       showDemoLoginOption();
@@ -354,30 +356,38 @@ function updateLoginState() {
     loadAllUserData();
   } else {
     console.log("用户未登录，显示Demo登录选项");
-    // 直接显示demo登录选项，无需检查sessionStorage
-    // 确保提示能够立即显示
     setTimeout(() => {
       showDemoLoginOption();
-    }, 100);
+    }, 500); // 增加延迟到500ms
   }
 }
 
 /**
  * Show demo login option - center on screen and block interactions
  */
+let demoLoginShown = false;
+
 function showDemoLoginOption() {
+  // 如果已经显示过，直接返回
+  if (demoLoginShown) {
+    console.log("Demo登录提示已经显示过");
+    return;
+  }
+
   // Skip if user is already logged in
   const savedUser = loadDataFromLocal('loggedInUser');
   if (savedUser && savedUser.username) {
     console.log("用户已登录，不显示登录提示");
     return;
   }
-  
+
   // Check if prompt is already showing
   if (document.querySelector('.demo-login-prompt')) {
     console.log("登录提示已经存在，不重复显示");
     return;
   }
+
+  demoLoginShown = true;
   
   // Create the demo login prompt
   const demoPrompt = document.createElement('div');
